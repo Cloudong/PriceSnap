@@ -31,7 +31,7 @@ app.get("/users/:userId", async (req, res) => {
     if (Item) {
       const { userId, name } = Item;
       res.json({ userId, name });
-      console.log(`${userId}님이 입장하셨습니다`);
+      console.log(`${userId}님이 입장하셨습니다람쥐`);
     } else {
       res
         .status(404)
