@@ -8,7 +8,7 @@ app.use(express.json());
 app.use("/users", userRoutes);
 
 app.use("/test", async (req, res) => {
-    return res.status(200).json({"message": "testMessage"});
+    res.status(200).json({"message": "testMessage"});
 });
   
 app.use((req, res) => {
