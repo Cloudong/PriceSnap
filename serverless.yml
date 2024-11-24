@@ -9,6 +9,8 @@ stages:
   default:
     params:
       tableName: "users-table-${sls:stage}"
+      productsTableName: "products-table-${sls:stage}"  # 새로운 테이블 이름 파라미터 추가
+
 
 provider:
   name: aws
@@ -26,8 +28,10 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             - Fn::GetAtt: [UsersTable, Arn]
+            - Fn::GetAtt: [ProductsTable, Arn]  # 새로운 테이블의 ARN 추가
   environment:
     USERS_TABLE: ${param:tableName}
+    PRODUCTS_TABLE: ${param:productsTableName}  # 새로운 환경 변수 추가
 
 functions:
   api:
@@ -48,3 +52,14 @@ resources:
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         TableName: ${param:tableName}
+    ProductsTable:  # 새로운 DynamoDB 테이블 리소스 추가
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: productId  # 새로운 속성 이름
+            AttributeType: S
+        KeySchema:
+          - AttributeName: productId  # 새로운 키 스키마
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${param:productsTableName}  # 새로운 테이블 이름 사용
