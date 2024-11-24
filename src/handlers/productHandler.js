@@ -3,8 +3,6 @@ const { fetchProduct, createProductInDB, searchProductsInDB } = require('../serv
 const getProduct = async (req, res) => {
   const productId = req.params.productId; // URL에서 productId 가져오기
   try {
-    console.log("getProduct 호출됨");
-
     const product = await fetchProduct(productId); // 제품 조회
     if (product) {
       res.json(product); // 조회된 제품 반환
@@ -43,8 +41,6 @@ const searchProductsHandler = async (req, res) => {
   if (!name) {
     return res.status(400).json({ error: 'Query parameter "name" is required' });
   }
-  console.log("searchProductsHandler 호출됨:", name);
-
 
   try {
     // 데이터베이스에서 제품 검색
