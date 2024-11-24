@@ -1,13 +1,15 @@
 const express = require("express");
 const userRoutes = require("./routes/userRoutes"); // 라우트 임포트
+const productRoutes = require("./routes/productRoutes"); // 라우트 임포트
 
 const app = express();
 app.use(express.json());
 
 // 라우트 설정
-app.use("/users", userRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
 
-app.use("/test", async (req, res) => {
+app.use("/api/test", async (req, res) => {
     res.status(200).json({"message": "testMessage"});
 });
   
