@@ -1,4 +1,4 @@
-const { getProductById, createProduct } = require('../models/productModel'); // 제품 모델에서 함수 가져오기
+const { getProductById, createProduct, queryProductsByName } = require('../models/productModel'); // 제품 모델에서 함수 가져오기
 
 // 제품 ID로 제품 정보를 조회하는 함수
 const fetchProduct = async (productId) => {

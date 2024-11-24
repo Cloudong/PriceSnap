@@ -1,8 +1,10 @@
-const { fetchProduct, createProductInDB } = require('../services/productService'); // 서비스에서 제품 관련 함수 가져오기
+const { fetchProduct, createProductInDB, searchProductsInDB } = require('../services/productService'); // 서비스에서 제품 관련 함수 가져오기
 
 const getProduct = async (req, res) => {
   const productId = req.params.productId; // URL에서 productId 가져오기
   try {
+    console.log("getProduct 호출됨");
+
     const product = await fetchProduct(productId); // 제품 조회
     if (product) {
       res.json(product); // 조회된 제품 반환
@@ -35,4 +37,23 @@ const createProduct = async (req, res) => {
   }
 };
 
-module.exports = { getProduct, createProduct }; // 함수 내보내기
+// 상품 키워드 검색 핸들러
+const searchProductsHandler = async (req, res) => {
+  const { name } = req.query; // 쿼리 파라미터에서 name 가져오기
+  if (!name) {
+    return res.status(400).json({ error: 'Query parameter "name" is required' });
+  }
+  console.log("searchProductsHandler 호출됨:", name);
+
+
+  try {
+    // 데이터베이스에서 제품 검색
+    const products = await searchProductsInDB(name);
+    res.json(products); // 결과 반환
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Could not retrieve products" });
+  }
+};
+
+module.exports = { getProduct, createProduct, searchProductsHandler }; // 함수 내보내기
