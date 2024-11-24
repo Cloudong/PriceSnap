@@ -1,3 +1,4 @@
+/*
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 
 const {
@@ -73,3 +74,4 @@ app.use((req, res, next) => {
 });
 
 exports.handler = serverless(app);
+*/
