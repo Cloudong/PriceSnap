@@ -45,7 +45,6 @@ async function fetchData(itemCode) {
         const response = await axios.get(url);
 
         // 응답 확인
-        console.log(response.data); // 응답 데이터 구조 확인
         const apiData = response.data.StatisticSearch.row || [];
         if (!apiData || apiData.length === 0) {
             console.log("API 응답에 데이터가 없습니다.");
@@ -60,6 +59,7 @@ async function fetchData(itemCode) {
 }
 
 async function saveOrUpdateDynamoDB(item) {
+    console.log("저장할 아이템:", item); // 데이터 확인용 로그
     const params = {
         TableName: PRODUCTS_TABLE,
         Item: item,
@@ -90,7 +90,7 @@ function transformData(apiData, category) {
     // const priceDecline = Math.abs(currentPrice - previousPrice);
 
     return {
-        _id: productId,
+        productId: productId,
         product_id: apiData[0].ITEM_CODE1,
         product_name: apiData[0].ITEM_NAME1,
         category,
@@ -126,7 +126,5 @@ async function startFetch() {
         console.log("오류 발생:", error.message);
     }
 }
-
-startFetch();
 
 module.exports = { startFetch };
