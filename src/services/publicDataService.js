@@ -35,7 +35,6 @@ function getDate(offset = 0, format = "YYYYMM") {
     if (format === "YYYYMM") {
         return `${year}${month}`;
     }
-    // 필요한 다른 포맷을 추가하려면 여기에 조건을 추가할 수 있습니다
 }
 
 async function fetchData(itemCode) {
@@ -128,3 +127,5 @@ async function startFetch() {
         console.log("오류 발생:", error.message);
     }
 }
+
+module.exports = { startFetch };
