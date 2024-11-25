@@ -43,11 +43,14 @@ const searchProductsInDB = async (name) => {
         return acc;
       }, {});
 
-      return {
-        product_id: item.productId,
-        name: item.product_name,
-        ...priceInfo // priceInfo 객체의 속성 추가
-      };
+      // ProductDTO 인스턴스 생성
+      return new ProductDTO(
+        item.productId,
+        item.product_name,
+        priceInfo.current_week_price || null, // 기본값 설정
+        priceInfo.previous_month_price || null, // 기본값 설정
+        priceInfo.previous_week_price || null // 기본값 설정
+      );
     });
 
     // 최종 응답 형식

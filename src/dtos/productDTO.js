@@ -1,8 +1,10 @@
 class ProductDTO {
-    constructor(productId, product_name, price_info) {
+    constructor(productId, product_name, current_week_price, previous_month_price, previous_week_price) {
       this.product_id = productId;
       this.product_name = product_name;
-      this.price_info = price_info;
+      this.current_week_price = current_week_price;
+      this.previous_month_price = previous_month_price;
+      this.previous_week_price = previous_week_price;
     }
   }
   
