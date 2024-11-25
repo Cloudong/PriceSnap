@@ -6,7 +6,7 @@ const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE;
 
 const apiStartUrl = process.env.API_START_URL;
 const apiKey = process.env.API_KEY;
-const type = process.env.API_FORMET;
+const type = process.env.API_FORMAT;
 const language = process.env.API_LANGUAGE;
 const requestStart = process.env.API_REQUEST_START;
 const requestEnd = process.env.API_REQUEST_END;
@@ -117,7 +117,6 @@ async function startFetch() {
 
                 if (transformedData) {
                     await saveOrUpdateDynamoDB(transformedData);
-                    console.log(`데이터 저장 완료: ${transformedData.product_name}`);
                 } else {
                     console.log(`변환된 데이터 없음: ${category} - ${itemCode}`);
                 }
@@ -127,5 +126,7 @@ async function startFetch() {
         console.log("오류 발생:", error.message);
     }
 }
+
+startFetch();
 
 module.exports = { startFetch };
