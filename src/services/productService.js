@@ -5,6 +5,7 @@ const { ScanCommand } = require("@aws-sdk/lib-dynamodb");
 // DTO 가져오기
 const ProductDTO = require('../dtos/productDTO');
 const ProductCategoryDTO = require('../dtos/productCategoryDTO');
+const ProductTrendDTO = require('../dtos/productTrendDTO')
 
 const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE; // 환경변수에서 테이블 이름 가져오기
 
@@ -153,4 +154,49 @@ const searchCategoryInDB = async (category) => {
   }
 };
 
-module.exports = { fetchProduct, createProductInDB, getAllProductsInDB, searchProductsInDB, searchCategoryInDB }; // 함수 내보내기
+// price_change가 감소인 상품중에, 가격 하락폭이 가장 큰 5개의 상품을 가져오는 함수
+const getTopDecliningProducts = async () => {
+  const params = {
+    TableName: PRODUCTS_TABLE,
+  };
+
+  try {
+    const command = new ScanCommand(params); // ScanCommand 사용
+    const result = await docClient.send(command);
+    
+    // 가격 하락폭이 가장 큰 상품을 찾기
+    const productsWithDecline = result.Items
+      .filter(item =>
+         item.price_trend && 
+         item.price_trend.price_change === "감소" && 
+        item.price_trend.price_decline !== undefined // price_trend가 있는 상품만 필터링
+      ) 
+      .map(item => ({
+        product_id: item.productId,
+        product_name: item.product_name,
+        current_week_price: item.price_trend.current_week_price,
+        price_decline: item.price_trend.price_decline
+      }));
+
+    // 가격 하락폭으로 정렬하고 상위 5개 선택
+    const topDecliningProducts = productsWithDecline
+    .sort((a, b) => b.price_decline - a.price_decline)
+    .slice(0, 5);
+
+    // ProductTrendDTO 인스턴스 생성
+    const productTrends = topDecliningProducts.map(product => new ProductTrendDTO(
+      product.product_id,
+      product.product_name,
+      product.current_week_price,
+      product.price_decline
+    ));
+
+    // 최종 응답 형식
+    return { trend: productTrends };
+  } catch (error) {
+    console.error("Unable to scan products. Error JSON:", JSON.stringify(error, null, 2));
+    throw new Error('Could not scan products');
+  }
+};
+
+module.exports = { fetchProduct, createProductInDB, getAllProductsInDB, searchProductsInDB, searchCategoryInDB, getTopDecliningProducts }; // 함수 내보내기
