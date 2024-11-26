@@ -2,7 +2,7 @@ const { getProductById, createProduct } = require('../models/productModel'); // 
 const docClient = require('../config/dbConfig');
 const { ScanCommand } = require("@aws-sdk/lib-dynamodb");
 
- // DTO 가져오기
+// DTO 가져오기
 const ProductDTO = require('../dtos/productDTO');
 const ProductCategoryDTO = require('../dtos/productCategoryDTO');
 
@@ -16,6 +16,48 @@ const fetchProduct = async (productId) => {
 // 제품 정보를 데이터베이스에 추가하는 함수
 const createProductInDB = async (product) => {
   await createProduct(product); // 모델에서 제품 생성 함수 호출
+};
+
+// 모든 상품을 가져오는 함수
+const getAllProductsInDB = async () => {
+  const params = {
+    TableName: PRODUCTS_TABLE,
+  };
+
+  try {
+    const command = new ScanCommand(params); // ScanCommand 사용
+    const result = await docClient.send(command);
+    
+    // 최종 응답 형식에 맞게 변환
+    const products = result.Items.map(item => {
+      const priceInfo = item.price_info.reduce((acc, price) => {
+        // price_type에 따라 적절한 키에 가격을 매핑
+        if (price.price_type === "현재") {
+          acc.current_week_price = price.price;
+        } else if (price.price_type === "전월") {
+          acc.previous_month_price = price.price;
+        } else if (price.price_type === "전주") {
+          acc.previous_week_price = price.price;
+        }
+        return acc;
+      }, {});
+
+      // ProductDTO 인스턴스 생성
+      return new ProductDTO(
+        item.productId,
+        item.product_name,
+        priceInfo.current_week_price || null, // 기본값 설정
+        priceInfo.previous_month_price || null, // 기본값 설정
+        priceInfo.previous_week_price || null // 기본값 설정
+      );
+    });
+
+    // 최종 응답 형식
+    return { products };
+  } catch (error) {
+    console.error("Unable to scan products. Error JSON:", JSON.stringify(error, null, 2));
+    throw new Error('Could not scan products');
+  }
 };
 
 // 상품 키워드 검색 함수
@@ -64,6 +106,7 @@ const searchProductsInDB = async (name) => {
   }
 };
 
+// 상품 카테고리 검색 함수
 const searchCategoryInDB = async (category) => {
   const params = {
     TableName: PRODUCTS_TABLE,
@@ -110,4 +153,4 @@ const searchCategoryInDB = async (category) => {
   }
 };
 
-module.exports = { fetchProduct, createProductInDB, searchProductsInDB, searchCategoryInDB }; // 함수 내보내기
+module.exports = { fetchProduct, createProductInDB, getAllProductsInDB, searchProductsInDB, searchCategoryInDB }; // 함수 내보내기

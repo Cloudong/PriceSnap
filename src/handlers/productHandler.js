@@ -1,4 +1,4 @@
-const { fetchProduct, createProductInDB, searchProductsInDB, searchCategoryInDB } = require('../services/productService'); // 서비스에서 제품 관련 함수 가져오기
+const { fetchProduct, createProductInDB, getAllProductsInDB, searchProductsInDB, searchCategoryInDB } = require('../services/productService'); // 서비스에서 제품 관련 함수 가져오기
 
 const getProduct = async (req, res) => {
   const productId = req.params.productId; // URL에서 productId 가져오기
@@ -32,6 +32,18 @@ const createProduct = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Could not create product" });
+  }
+};
+
+// 상품 검색 메인 페이지 
+const searchMainHandler = async (req, res) => {
+  try {
+    // 데이터베이스의 모든 상품 가져오기
+    const products = await getAllProductsInDB();
+    res.json(products); // 결과 반환
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Could not retrieve products" });
   }
 };
 
@@ -69,4 +81,4 @@ const searchCategoryHandler = async (req, res) => {
   }
 };
 
-module.exports = { getProduct, createProduct, searchProductsHandler, searchCategoryHandler }; // 함수 내보내기
+module.exports = { getProduct, createProduct, searchMainHandler, searchProductsHandler, searchCategoryHandler }; // 함수 내보내기
