@@ -39,21 +39,21 @@ function getDate(offset = 0, format = "YYYYMM") {
 
 async function fetchData(itemCode, offset = 0) {
     try {
-        const searchEnd = getDate(offset);
-        const searchStart = getDate(offset - 1);
+        const searchEnd = getDate(offset); // 현재 또는 전월 마지막 날짜
+        const searchStart = getDate(offset - 1); // 전월 시작 날짜
+
         const url = `${apiStartUrl}/${apiKey}/${type}/${language}/${requestStart}/${requestEnd}/${statCode}/${period}/${searchStart}/${searchEnd}/${itemCode}/?/`;
         const response = await axios.get(url);
 
-        // 응답 확인
-        const apiData = response.data.StatisticSearch.row || [];
+        // 응답 데이터 처리
+        const apiData = response.data.StatisticSearch?.row || [];
         if (!apiData || apiData.length === 0) {
-            console.log("API 응답에 데이터가 없습니다.");
+            console.log(`API 응답에 데이터 없음: ${itemCode}, 기간: ${searchStart} - ${searchEnd}`);
             return [];
         }
-
         return apiData;
     } catch (error) {
-        console.error("API 호출 중 오류 발생:", error.message);
+        console.error(`API 호출 실패 (itemCode: ${itemCode}, offset: ${offset}):`, error.message);
         return [];
     }
 }
@@ -86,38 +86,47 @@ function transformData(apiDataCurrent, apiDataPrevious, category) {
         price_date: entry.TIME,
     }));
 
-    // 전월 데이터 가격 정보
-    const previousPriceInfo = apiDataPrevious.map((entry) => ({
-        price: parseFloat(entry.DATA_VALUE),
-        price_type: "전월",
-        price_date: entry.TIME,
-    }));
+    // 전월 데이터 가격 정보 (중복 데이터 제거)
+    const previousPriceInfo = apiDataPrevious
+        .filter((entry) => entry.TIME !== apiDataCurrent[0].TIME) // 현재 데이터와 중복 제거
+        .map((entry) => ({
+            price: parseFloat(entry.DATA_VALUE),
+            price_type: "전월",
+            price_date: entry.TIME,
+        }));
 
     const priceInfo = [...currentPriceInfo, ...previousPriceInfo];
 
-    // const currentPrice = parseFloat(apiData[apiData.length - 1].DATA_VALUE);
-    // const previousPrice = parseFloat(apiData[apiData.length - 2]?.DATA_VALUE || currentPrice);
-    // const priceChange = currentPrice > previousPrice ? "증가" : "감소";
-    // const priceDecline = Math.abs(currentPrice - previousPrice);
+    // 현재 및 전월 가격 추출 (마지막 항목 기준)
+    const currentPrice = parseFloat(apiDataCurrent[apiDataCurrent.length - 1]?.DATA_VALUE || 0);
+    const previousPrice = previousPriceInfo.length > 0 ? parseFloat(previousPriceInfo[previousPriceInfo.length - 1]?.price || 0) : null;
+
+    // 가격 변동 계산
+    let priceChange = "데이터 없음";
+    let priceDecline = 0;
+    if (previousPrice !== null) {
+        priceChange = currentPrice > previousPrice ? "증가" : currentPrice < previousPrice ? "감소" : "변화 없음";
+        priceDecline = Math.abs(currentPrice - previousPrice);
+        priceDecline = priceDecline.toFixed(2);
+    }
 
     return {
-        productId: productId, // 나중에 파티션 키 바꿔야 됨
+        productId: productId,
         product_id: apiDataCurrent[0].ITEM_CODE1,
         product_name: apiDataCurrent[0].ITEM_NAME1,
-        category, // 이것도 정렬키로?
+        category,
         price_info: priceInfo,
         price_trend: {
-            current_week_price: null,
-            previous_week_price: null,
-            price_change: null,
-            price_decline: null,
+            current_month_price: currentPrice,
+            previous_month_price: previousPrice || "없음",
+            price_change: priceChange,
+            price_decline: priceDecline,
         },
     };
 }
 
 async function startFetch() {
     try {
-        console.log("데이터 fetch 시작...");
         for (const [category, { start, end }] of Object.entries(categoryRanges)) {
             for (let i = start; i <= end; i++) {
                 const itemCode = `${category}${String(i).padStart(2, "0")}`;
@@ -138,7 +147,5 @@ async function startFetch() {
         console.log("오류 발생:", error.message);
     }
 }
-
-startFetch();
 
 module.exports = { startFetch };
