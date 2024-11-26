@@ -154,7 +154,7 @@ const searchCategoryInDB = async (category) => {
   }
 };
 
-// 가격 하락폭이 가장 큰 5개의 상품을 가져오는 함수
+// price_change가 감소인 상품중에, 가격 하락폭이 가장 큰 5개의 상품을 가져오는 함수
 const getTopDecliningProducts = async () => {
   const params = {
     TableName: PRODUCTS_TABLE,
@@ -166,7 +166,11 @@ const getTopDecliningProducts = async () => {
     
     // 가격 하락폭이 가장 큰 상품을 찾기
     const productsWithDecline = result.Items
-      .filter(item => item.price_trend && item.price_trend.price_decline !== undefined) // price_trend가 있는 상품만 필터링
+      .filter(item =>
+         item.price_trend && 
+         item.price_trend.price_change === "감소" && 
+        item.price_trend.price_decline !== undefined // price_trend가 있는 상품만 필터링
+      ) 
       .map(item => ({
         product_id: item.productId,
         product_name: item.product_name,
@@ -175,7 +179,9 @@ const getTopDecliningProducts = async () => {
       }));
 
     // 가격 하락폭으로 정렬하고 상위 5개 선택
-    const topDecliningProducts = productsWithDecline.sort((a, b) => b.price_decline - a.price_decline).slice(0, 5);
+    const topDecliningProducts = productsWithDecline
+    .sort((a, b) => b.price_decline - a.price_decline)
+    .slice(0, 5);
 
     // ProductTrendDTO 인스턴스 생성
     const productTrends = topDecliningProducts.map(product => new ProductTrendDTO(
