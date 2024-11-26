@@ -1,4 +1,4 @@
-const { fetchProduct, createProductInDB, getAllProductsInDB, searchProductsInDB, searchCategoryInDB } = require('../services/productService'); // 서비스에서 제품 관련 함수 가져오기
+const { fetchProduct, createProductInDB, getAllProductsInDB, searchProductsInDB, searchCategoryInDB, getTopDecliningProducts } = require('../services/productService'); // 서비스에서 제품 관련 함수 가져오기
 
 const getProduct = async (req, res) => {
   const productId = req.params.productId; // URL에서 productId 가져오기
@@ -81,4 +81,15 @@ const searchCategoryHandler = async (req, res) => {
   }
 };
 
-module.exports = { getProduct, createProduct, searchMainHandler, searchProductsHandler, searchCategoryHandler }; // 함수 내보내기
+// 물가 동향 핸들러
+const getProductTrendHandler = async (req, res) => {
+  try {
+    const trends = await getTopDecliningProducts();
+    res.json(trends);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Unable to check price trend" });
+  }
+};
+
+module.exports = { getProduct, createProduct, searchMainHandler, searchProductsHandler, searchCategoryHandler, getProductTrendHandler }; // 함수 내보내기

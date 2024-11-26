@@ -7,4 +7,4 @@ class productTrendDTO{
       }
     }
 
-    module.exports = ProductDTO;
+    module.exports = productTrendDTO;
