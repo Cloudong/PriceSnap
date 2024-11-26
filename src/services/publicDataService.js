@@ -37,10 +37,10 @@ function getDate(offset = 0, format = "YYYYMM") {
     }
 }
 
-async function fetchData(itemCode) {
+async function fetchData(itemCode, offset = 0) {
     try {
-        const searchEnd = getDate();
-        const searchStart = getDate(-1);
+        const searchEnd = getDate(offset);
+        const searchStart = getDate(offset - 1);
         const url = `${apiStartUrl}/${apiKey}/${type}/${language}/${requestStart}/${requestEnd}/${statCode}/${period}/${searchStart}/${searchEnd}/${itemCode}/?/`;
         const response = await axios.get(url);
 
@@ -74,15 +74,26 @@ async function saveOrUpdateDynamoDB(item) {
     }
 }
 
-function transformData(apiData, category) {
-    if (apiData.length === 0) return null;
+function transformData(apiDataCurrent, apiDataPrevious, category) {
+    if (apiDataCurrent.length === 0) return null;
 
-    const productId = `${apiData[0].ITEM_CODE1}_${apiData[0].TIME}`;
-    const priceInfo = apiData.map((entry) => ({
+    const productId = `${apiDataCurrent[0].ITEM_CODE1}_${apiDataCurrent[0].TIME}`;
+
+    // 현재 데이터 가격 정보
+    const currentPriceInfo = apiDataCurrent.map((entry) => ({
         price: parseFloat(entry.DATA_VALUE),
         price_type: "현재",
         price_date: entry.TIME,
     }));
+
+    // 전월 데이터 가격 정보
+    const previousPriceInfo = apiDataPrevious.map((entry) => ({
+        price: parseFloat(entry.DATA_VALUE),
+        price_type: "전월",
+        price_date: entry.TIME,
+    }));
+
+    const priceInfo = [...currentPriceInfo, ...previousPriceInfo];
 
     // const currentPrice = parseFloat(apiData[apiData.length - 1].DATA_VALUE);
     // const previousPrice = parseFloat(apiData[apiData.length - 2]?.DATA_VALUE || currentPrice);
@@ -90,10 +101,10 @@ function transformData(apiData, category) {
     // const priceDecline = Math.abs(currentPrice - previousPrice);
 
     return {
-        productId: productId,
-        product_id: apiData[0].ITEM_CODE1,
-        product_name: apiData[0].ITEM_NAME1,
-        category,
+        productId: productId, // 나중에 파티션 키 바꿔야 됨
+        product_id: apiDataCurrent[0].ITEM_CODE1,
+        product_name: apiDataCurrent[0].ITEM_NAME1,
+        category, // 이것도 정렬키로?
         price_info: priceInfo,
         price_trend: {
             current_week_price: null,
@@ -112,8 +123,9 @@ async function startFetch() {
                 const itemCode = `${category}${String(i).padStart(2, "0")}`;
                 console.log(`API 호출: ${itemCode}`);
 
-                const apiData = await fetchData(itemCode);
-                const transformedData = transformData(apiData, category);
+                const apiDataCurrent = await fetchData(itemCode);
+                const apiDataPrevious = await fetchData(itemCode, -1);
+                const transformedData = transformData(apiDataCurrent, apiDataPrevious, category);
 
                 if (transformedData) {
                     await saveOrUpdateDynamoDB(transformedData);
@@ -126,5 +138,7 @@ async function startFetch() {
         console.log("오류 발생:", error.message);
     }
 }
+
+startFetch();
 
 module.exports = { startFetch };
