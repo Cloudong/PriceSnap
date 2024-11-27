@@ -15,24 +15,29 @@ const getUserById = async (userId) => {
 };
 
 const createUser = async (userId, name, user_password) => {
-    const hashedPassword = await bcrypt.hash(user_password, 10);
-    const user = {
-        userId,
-        name,
-        user_password: hashedPassword,
-        create_at: new Date().toISOString(),
-    };
-    const params = {
-        TableName: USERS_TABLE,
-        Item: user,
-    };
-    const command = new PutCommand(params);
-    await docClient.send(command);
-
-    return user;
+    try {
+        // 비밀번호 해싱 (솔트 값: 10)
+        const hashedPassword = await bcrypt.hash(user_password, 10);
+        const user = {
+            userId,
+            name,
+            user_password: hashedPassword,
+            created_at: new Date().toISOString(),
+        };
+        const params = {
+            TableName: USERS_TABLE,
+            Item: user,
+        };
+        const command = new PutCommand(params);
+        await docClient.send(command);
+        return user;
+    } catch (error) {
+        console.error("Error creating user:", error);
+        throw new Error("Could not create user");
+    }
 };
 
-const updateName = async (userId, newName) => {
+const updateNameById = async (userId, newName) => {
     const params = {
         TableName: USERS_TABLE,
         Key: {
@@ -48,4 +53,4 @@ const updateName = async (userId, newName) => {
     await docClient.send(command);
 };
 
-module.exports = { getUserById, createUser, updateName };
+module.exports = { getUserById, createUser, updateNameById };

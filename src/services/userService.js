@@ -1,4 +1,4 @@
-const { getUserById, createUser, updateName } = require("../models/userModel");
+const { getUserById, createUser, updateNameById } = require("../models/userModel");
 
 const fetchUser = async (userId) => {
     return await getUserById(userId);
@@ -9,7 +9,7 @@ const registerUser = async (userId, name, user_password) => {
 };
 
 const updateName = async (userId, newName) => {
-    await updateName(userId, newName);
+    await updateNameById(userId, newName);
 };
 
 module.exports = { fetchUser, registerUser, updateName };

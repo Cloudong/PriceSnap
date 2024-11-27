@@ -36,7 +36,7 @@ const createUser = async (req, res) => {
     }
 
     try {
-        const newUser = await registerUser({ userId, name, user_password });
+        const newUser = await registerUser(userId, name, user_password);
         res.status(201).json({ message: "User created successfully", user: newUser });
     } catch (error) {
         console.error(error);
