@@ -1,4 +1,5 @@
-const { fetchUser, registerUser } = require("../services/userService");
+const bcrypt = require("bcrypt");
+const { fetchUser, registerUser, updateName } = require("../services/userService");
 
 const getUser = async (req, res) => {
     const userId = req.params.userId;
@@ -9,7 +10,7 @@ const getUser = async (req, res) => {
             res.json({ userId, name });
 
             // 세션
-            req.session.user = { user_id: user.user_id, user_name: user.user_name };
+            req.session.user = { userId: user.userId, name: user.name };
 
             console.log(`${userId}님이 입장하셨습니다람쥐`);
         } else {
@@ -22,16 +23,21 @@ const getUser = async (req, res) => {
 };
 
 const createUser = async (req, res) => {
-    const { userId, name } = req.body;
+    const { userId, name, user_password } = req.body;
     if (typeof userId !== "string") {
         return res.status(400).json({ error: '"userId" must be a string' });
     } else if (typeof name !== "string") {
         return res.status(400).json({ error: '"name" must be a string' });
     }
 
+    // 입력값 검증
+    if (!userId || !name || !user_password) {
+        return res.status(400).json({ error: "userId, name, and user_password ard required" });
+    }
+
     try {
-        await registerUser({ userId, name });
-        res.json({ userId, name });
+        const newUser = await registerUser({ userId, name, user_password });
+        res.status(201).json({ message: "User created successfully", user: newUser });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Could not create user" });
@@ -40,10 +46,35 @@ const createUser = async (req, res) => {
 
 const logoutUser = async (req, res) => {
     if (req.session.user) {
-        req.session.destory((error) => {
-            if (err) return res.status(500).json({ error: "Logout Failed" });
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).json({ error: "Logout Failed" });
+            }
+            res.status(200).json({ message: "Logout successful" });
         });
+    } else {
+        res.status(401).json({ message: "Not logged in" });
     }
 };
 
-module.exports = { getUser, createUser };
+const updateUserName = async (req, res) => {
+    const { newName } = req.body;
+
+    if (!req.session.user) {
+        return res.status(401).json({ message: "Not logged in" });
+    }
+
+    try {
+        const userId = req.session.user.userId;
+        await updateName(userId, newName);
+
+        // 세션에 저장된 닉네임도 업데이트
+        req.session.user.name = newName;
+
+        res.status(200).json({ message: "Name updated successfully", newName });
+    } catch (error) {
+        res.status(500).json({ message: "Error updating nickname", error });
+    }
+};
+
+module.exports = { getUser, createUser, logoutUser, updateUserName };

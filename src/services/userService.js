@@ -1,11 +1,15 @@
-const { getUserById, createUser } = require('../models/userModel');
+const { getUserById, createUser, updateName } = require("../models/userModel");
 
 const fetchUser = async (userId) => {
-  return await getUserById(userId);
+    return await getUserById(userId);
 };
 
-const registerUser = async (user) => {
-  await createUser(user);
+const registerUser = async (userId, name, user_password) => {
+    await createUser(userId, name, user_password);
 };
 
-module.exports = { fetchUser, registerUser };
+const updateName = async (userId, newName) => {
+    await updateName(userId, newName);
+};
+
+module.exports = { fetchUser, registerUser, updateName };
