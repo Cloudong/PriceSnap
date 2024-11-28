@@ -1,16 +1,21 @@
 const express = require("express");
 const session = require("express-session");
+const cors = require("cors");
 const bodyParser = require("body-parser");
+
 const userRoutes = require("./routes/userRoutes"); // 라우트 임포트
 const productRoute = require("./routes/productRoutes");
 
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-// CORS 설정 부분
-/*
+// app.use(express.urlencoded({ extended: true }));
 
-*/
+// CORS 설정 부분
+const corsOptions = {
+    origin: ["https://d6rlnxefknq73.cloudfront.net", "http://localhost:3000"],
+    credentials: true,
+};
+app.use(cors(corsOptions));
 
 // 세션 설정
 app.use(
