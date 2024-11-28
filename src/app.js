@@ -23,7 +23,7 @@ app.use(
         secret: process.env.SESSION_KEY,
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: false }, // HTTPS 사용하나? 사용하면 true
+        cookie: { secure: true }, // HTTPS 사용하나? 사용하면 true
     })
 );
 
@@ -44,9 +44,10 @@ app.use((req, res) => {
 });
 
 // 테스트
+/*
 const PORT = 4000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-
+*/
 module.exports = app;
