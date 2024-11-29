@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const userRoutes = require("./routes/userRoutes"); 
 const productRoute = require("./routes/productRoutes");
 const cartRoute = require("./routes/cartRoutes");
+const budgetRoute = require("./routes/budgetRoutes");
 
 const app = express();
 app.use(express.json());
@@ -37,6 +38,8 @@ app.use(bodyParser.json());
 app.use("/users", userRoutes);
 app.use("/products", productRoute);
 app.use("/carts", cartRoute);
+app.use("/budgets", budgetRoute);
+
 
 app.use("/test", async (req, res) => {
     res.status(200).json({ message: "testMessage" });
