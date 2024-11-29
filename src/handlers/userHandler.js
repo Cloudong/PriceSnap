@@ -27,11 +27,11 @@ const getUser = async (req, res) => {
 
 const createUser = async (req, res) => {
     const { userId, name, user_password } = req.body;
-    if (typeof userId !== "string") {
-        return res.status(400).json({ error: '"userId" must be a string' });
-    } else if (typeof name !== "string") {
-        return res.status(400).json({ error: '"name" must be a string' });
-    }
+    // if (typeof userId !== "string") {
+    //     return res.status(400).json({ error: '"userId" must be a string' });
+    // } else if (typeof name !== "string") {
+    //     return res.status(400).json({ error: '"name" must be a string' });
+    // }
 
     // 입력값 검증
     if (!userId || !name || !user_password) {

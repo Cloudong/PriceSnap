@@ -35,14 +35,14 @@ app.use(bodyParser.json());
 //     res.status(200).json({ message: "testMessage" });
 // });
 
-// app.use((req, res) => {
-//     return res.status(404).json({ error: "Not Found" });
-// });
+app.use((req, res) => {
+    return res.status(404).json({ error: "Not Found" });
+});
 
-// app.use((req, res, next) => {
-//     console.log(`Received ${req.method} request on ${req.url}`);
-//     next();
-// });
+app.use((req, res, next) => {
+    console.log(`Received ${req.method} request on ${req.url}`);
+    next();
+});
 
 // 테스트
 // app.use((req, res, next) => {
