@@ -36,7 +36,7 @@ app.use(bodyParser.json());
 // 라우트 설정
 app.use("/users", userRoutes);
 app.use("/products", productRoute);
-app.use("/products", cartRoute);
+app.use("/carts", cartRoute);
 
 app.use("/test", async (req, res) => {
     res.status(200).json({ message: "testMessage" });

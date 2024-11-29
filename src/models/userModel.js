@@ -53,4 +53,25 @@ const updateNameById = async (userId, newName) => {
     await docClient.send(command);
 };
 
-module.exports = { getUserById, createUser, updateNameById };
+// 사용자의 cart를 업데이트
+const updateCartById = async (user) => {
+    const params = {
+        TableName: USERS_TABLE,
+        Key: {
+            userId: user.userId, // user 객체에서 userId를 가져옵니다.
+        },
+        UpdateExpression: "SET #cart = :cart",
+        ExpressionAttributeNames: {
+            "#cart": "cart", // 예약어 처리
+        },
+        ExpressionAttributeValues: {
+            ":cart": user.cart, // 업데이트할 cart 정보
+        },
+        ReturnValues: "UPDATED_NEW",
+    };
+
+    const command = new UpdateCommand(params);
+    await docClient.send(command);
+};
+
+module.exports = { getUserById, createUser, updateNameById, updateCartById };
