@@ -21,7 +21,7 @@ const createUser = async (userId, name, user_password) => {
         const user = {
             userId,
             name,
-            user_password: hashedPassword,
+            user_password: hashedPassword.toString(),
             created_at: new Date().toISOString(),
         };
         const params = {
