@@ -5,7 +5,7 @@ const addProductToCartHandler = async (req, res) => {
         // 세션에서 userId 가져오기
         //const userId = req.session.userId;
 
-        userId = 'cartTest1'; // session 없이 테스트 위해 가상 user 설정
+        userId = 'cartTest2'; // session 없이 테스트 위해 가상 user 설정
 
         // userId가 없는 경우 에러 처리
         if (!userId) {
