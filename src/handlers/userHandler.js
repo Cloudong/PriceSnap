@@ -2,12 +2,15 @@ const bcrypt = require("bcrypt");
 const { fetchUser, registerUser, updateName } = require("../services/userService");
 
 const getUser = async (req, res) => {
-    const userId = req.params.userId;
+    const { userId, user_password } = req.body;
     try {
         const user = await fetchUser(userId);
         if (user) {
-            const { userId, name } = user;
-            res.json({ userId, name });
+            const isMatch = await bcrypt.compare(user_password, user.user_password);
+
+            if (!isMatch) {
+                return res.status(401).json({ message: "Invalid credentials" });
+            }
 
             // 세션
             req.session.user = { userId: user.userId, name: user.name };
@@ -35,8 +38,10 @@ const createUser = async (req, res) => {
         return res.status(400).json({ error: "userId, name, and user_password ard required" });
     }
 
+    const hashedPassword = await bcrypt.hash(user_password, 10);
+
     try {
-        const newUser = await registerUser(userId, name, user_password);
+        const newUser = await registerUser(userId, name, hashedPassword);
         res.status(201).json({ message: "User created successfully", user: newUser });
     } catch (error) {
         console.error(error);
