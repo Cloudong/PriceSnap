@@ -5,10 +5,10 @@ const USERS_TABLE = process.env.USERS_TABLE; // 환경변수에서 테이블 이
 
 const addProductToCart = async (userId, product_id, quantity) => {
     try{
-        // 1. 사용자의 장바구니 조회
+        // 사용자의 장바구니 조회
         const user = await getUserById(userId); // 사용자 정보를 가져오는 함수
 
-        // 2. 장바구니가 없는 경우 새로 생성
+        // 장바구니가 없는 경우 새로 생성
         if (!user.cart) {
         user.cart = {
             cart_id: generateCartId(), // 장바구니 ID 생성 함수
@@ -17,17 +17,24 @@ const addProductToCart = async (userId, product_id, quantity) => {
             };
         }
 
-        // 3. 새로운 아이템 객체 생성
-        const newItem = {
-            product_id,
-            quantity,
-            priority: 1, // 기본 우선순위 설정
-        };
+        // 기존에 같은 product_id를 가진 아이템 확인
+        const existingItem = user.cart.cart_items.find(item => item.product_id === product_id);
 
-        // 4. 장바구니에 아이템 추가
-        user.cart.cart_items.push(newItem);
+        if (existingItem) {
+            // 이미 존재하는 경우 수량 추가
+            existingItem.quantity += quantity;
+        } else {
+            // 새로운 아이템 객체 생성
+            const newItem = {
+                product_id,
+                quantity,
+                priority: 1, // 기본 우선순위 설정
+            };
+            // 장바구니에 새로운 아이템 추가
+            user.cart.cart_items.push(newItem);
+        }
 
-        // 6. 사용자 정보 업데이트 (DB에 저장)
+        // 사용자 정보 업데이트 (DB에 저장)
         await updateCartById(user); // 사용자 정보를 DB에 저장하는 함수
 
         return { cart: user.cart };
