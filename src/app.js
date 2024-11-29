@@ -23,7 +23,7 @@ app.use(
         secret: process.env.SESSION_KEY,
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: false }, // 로컬은 HTTP이므로 로컬 테스트 시 false로 변경
+        cookie: { secure: true }, // 로컬은 HTTP이므로 로컬 테스트 시 false로 변경
     })
 );
 
