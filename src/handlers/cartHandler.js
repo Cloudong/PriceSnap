@@ -4,7 +4,7 @@ const { addProductToCart } = require('../services/cartService');
 const addProductToCartHandler = async (req, res) => {
     try {
         // 세션에서 userId 가져오기
-        const userId = req.session.userId; // 세션에서 userId를 가져옵니다.
+        const userId = req.session.userId;
         
         // userId가 없는 경우 에러 처리
         if (!userId) {
@@ -18,7 +18,7 @@ const addProductToCartHandler = async (req, res) => {
         }
 
         const updatedCart = await addProductToCart(userId, product_id, quantity);
-        res.status(200).json({ message: 'Product added to cart', cart: updatedCart });
+        res.status(200).json({ message: 'Product added to cart'});
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
