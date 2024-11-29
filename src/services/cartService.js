@@ -64,11 +64,17 @@ const addProductToCart = async (userId, product_id, quantity) => {
     }
 };
 
-// 장바구니 ID 생성 함수 (예시)
+// 장바구니 ID 생성 함수
 const generateCartId = () => {
     return `cart_${Date.now()}`; // 단순한 예시로 현재 시간을 기반으로 ID 생성
 };
 
+// 장바구니 상품 조회 함수
+const getCart = () => {
+
+};
+
 module.exports = {
-    addProductToCart
+    addProductToCart,
+    getCart
 };
