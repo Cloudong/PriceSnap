@@ -38,8 +38,8 @@ const getCartHandler = async (req, res) => {
             throw new Error('User not logged in');
         }
 
-        const getCart = await getCart(userId);
-        res.status(200).json({ cart: getCart });
+        const cartResponse = await getCart(userId);
+        res.status(200).json({ cart: cartResponse });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
