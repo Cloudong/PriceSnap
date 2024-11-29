@@ -3,8 +3,10 @@ const session = require("express-session");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
-const userRoutes = require("./routes/userRoutes"); // 라우트 임포트
+// 라우트 임포트
+const userRoutes = require("./routes/userRoutes"); 
 const productRoute = require("./routes/productRoutes");
+const cartRoute = require("./routes/cartRoutes");
 
 const app = express();
 app.use(express.json());
@@ -34,6 +36,7 @@ app.use(bodyParser.json());
 // 라우트 설정
 app.use("/users", userRoutes);
 app.use("/products", productRoute);
+app.use("/products", cartRoute);
 
 app.use("/test", async (req, res) => {
     res.status(200).json({ message: "testMessage" });
