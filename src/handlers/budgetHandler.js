@@ -4,7 +4,9 @@ const { setBudget } = require('../services/budgetService');
 const setBudgetHandler = async (req, res) => {
     try {
         // 세션에서 userId 가져오기
-        const userId = req.session.userId; // 세션에서 userId를 가져온다고 가정
+        //const userId = req.session.userId; // 세션에서 userId를 가져온다고 가정
+
+        userId = 'cartTest2'; // session 없이 테스트 위해 가상 user 설정
 
         // userId가 없는 경우 에러 처리
         if (!userId) {
