@@ -3,9 +3,9 @@ const docClient = require("../config/dbConfig");
 const { ScanCommand } = require("@aws-sdk/lib-dynamodb");
 
 // DTO 가져오기
-const ProductDTO = require("../dtos/productDTO");
-const ProductCategoryDTO = require("../dtos/productCategoryDTO");
-const ProductTrendDTO = require("../dtos/productTrendDTO");
+const ProductDTO = require("../dtos/productDtos/productDTO");
+const ProductCategoryDTO = require("../dtos/productDtos/productCategoryDTO");
+const ProductTrendDTO = require("../dtos/productDtos/productTrendDTO");
 
 const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE; // 환경변수에서 테이블 이름 가져오기
 
