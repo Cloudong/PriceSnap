@@ -1,9 +1,5 @@
-const docClient = require("../config/dbConfig");
 const { getUserById, updateCartById } = require("../models/userModel");
 const { getProductById } = require("../models/productModel");
-
-
-const USERS_TABLE = process.env.USERS_TABLE; // 환경변수에서 테이블 이름 가져오기
 
 const CartItemDTO = require("../dtos/cartDtos/CartItemDTO"); // CartItemDTO 정의
 const CartDTO = require("../dtos/cartDtos/CartDTO"); // CartDTO 정의
