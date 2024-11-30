@@ -70,7 +70,7 @@ const generateCartId = () => {
 };
 
 // 장바구니 상품 조회 함수
-const getCart = () => {
+const getCart = async (userId) => {
 
 };
 

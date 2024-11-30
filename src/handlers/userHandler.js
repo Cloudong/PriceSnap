@@ -15,7 +15,7 @@ const getUser = async (req, res) => {
             // 세션
             req.session.user = { userId: user.userId, name: user.name };
 
-            console.log(`${userId}님이 입장하셨습니다람쥐`);
+            res.status(200).json({ message: "Login successful", user: user });
         } else {
             res.status(404).json({ error: 'Could not find user with provided "userId"' });
         }
@@ -38,10 +38,8 @@ const createUser = async (req, res) => {
         return res.status(400).json({ error: "userId, name, and user_password ard required" });
     }
 
-    const hashedPassword = await bcrypt.hash(user_password, 10);
-
     try {
-        const newUser = await registerUser(userId, name, hashedPassword);
+        const newUser = await registerUser(userId, name, user_password);
         res.status(201).json({ message: "User created successfully", user: newUser });
     } catch (error) {
         console.error(error);
