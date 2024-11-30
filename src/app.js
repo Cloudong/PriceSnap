@@ -59,8 +59,8 @@ app.use((req, res, next) => {
 // 라우트 설정
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoute);
-app.use("/carts", cartRoute);
-app.use("/budgets", budgetRoute);
+app.use("/api/carts", cartRoute);
+app.use("/api/budgets", budgetRoute);
 
 const PORT = 4000;
 app.listen(PORT, () => {
