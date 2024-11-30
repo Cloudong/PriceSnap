@@ -3,8 +3,11 @@ const session = require("express-session");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
-const userRoutes = require("./routes/userRoutes"); // 라우트 임포트
+// 라우트 임포트
+const userRoutes = require("./routes/userRoutes"); 
 const productRoute = require("./routes/productRoutes");
+const cartRoute = require("./routes/cartRoutes");
+const budgetRoute = require("./routes/budgetRoutes");
 
 const app = express();
 app.use(express.json());
@@ -35,15 +38,6 @@ app.use(bodyParser.json());
 //     res.status(200).json({ message: "testMessage" });
 // });
 
-app.use((req, res) => {
-    return res.status(404).json({ error: "Not Found" });
-});
-
-app.use((req, res, next) => {
-    console.log(`Received ${req.method} request on ${req.url}`);
-    next();
-});
-
 // 테스트
 // app.use((req, res, next) => {
 //     res.header("Access-Control-Allow-Origin", "*");
@@ -56,10 +50,23 @@ app.use((req, res, next) => {
 // 라우트 설정
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoute);
+app.use("/api/carts", cartRoute);
+app.use("/api/budgets", budgetRoute);
 
+app.use((req, res) => {
+    return res.status(404).json({ error: "Not Found" });
+});
+
+app.use((req, res, next) => {
+    console.log(`Received ${req.method} request on ${req.url}`);
+    next();
+});
+
+/*
 const PORT = 4000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+*/
 
 module.exports = app;
