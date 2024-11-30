@@ -5,7 +5,7 @@ const addProductToCartHandler = async (req, res) => {
         // 세션에서 userId 가져오기
         //const userId = req.session.userId;
 
-        userId = 'cartTest2'; // session 없이 테스트 위해 가상 user 설정
+        userId = 'cartTest3'; // session 없이 테스트 위해 가상 user 설정
 
         // userId가 없는 경우 에러 처리
         if (!userId) {
@@ -31,7 +31,7 @@ const getCartHandler = async (req, res) => {
         // 세션에서 userId 가져오기
         //const userId = req.session.userId;
 
-        userId = 'cartTest2'; // session 없이 테스트 위해 가상 user 설정
+        userId = 'cartTest3'; // session 없이 테스트 위해 가상 user 설정
 
         // userId가 없는 경우 에러 처리
         if (!userId) {
@@ -39,7 +39,7 @@ const getCartHandler = async (req, res) => {
         }
 
         const cartResponse = await getCart(userId);
-        res.status(200).json({ cart: cartResponse });
+        res.status(200).json( cartResponse );
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });

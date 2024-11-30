@@ -1,7 +1,12 @@
 const docClient = require("../config/dbConfig");
 const { getUserById, updateCartById } = require("../models/userModel");
+const { getProductById } = require("../models/productModel");
+
 
 const USERS_TABLE = process.env.USERS_TABLE; // 환경변수에서 테이블 이름 가져오기
+
+const CartItemDTO = require("../dtos/cartDtos/CartItemDTO"); // CartItemDTO 정의
+const CartDTO = require("../dtos/cartDtos/CartDTO"); // CartDTO 정의
 
 const addProductToCart = async (userId, product_id, quantity) => {
     try{
@@ -73,17 +78,51 @@ const generateCartId = () => {
 const getCart = async (userId) => {
     try{
         // 사용자의 장바구니 조회
-        const user = await getUserById(userId); // 사용자 정보를 가져오는 함수
+        const user = await getUserById(userId);
 
-        // 장바구니가 없는 경우 새로 생성
-        if (!user.cart) {
+        // 예산 가져오기
+        const budget = user.budget ? user.budget.amount : null; // budget이 없을 경우 null 반환
+
+        // 장바구니 아이템 조회
+        const cartItems = user.cart && user.cart.cart_items ? user.cart.cart_items : null; // cart_items가 없을 경우 null 반환
+        
+        const items = [];
+        let total_price = 0;
+
+        // cart_items가 존재하는 경우에만 제품 정보 조회
+        if (cartItems) {
+            for (const item of cartItems) {
+                const product = await getProductById(item.product_id); // product 테이블에서 제품 정보 조회
+
+                if (product) {
+                    const productName = product.product_name;
+                    const price = product.price_trend.current_month_price; // 가격 가져오기
+                    const quantity = item.quantity;
+
+                    // CartItemDTO 생성
+                    const cartItemDTO = new CartItemDTO(
+                        item.product_id,
+                        productName,
+                        quantity,
+                        price
+                    );
+
+                    items.push(cartItemDTO); // CartItemDTO 배열에 추가
+                    total_price += price * quantity; // 총 가격 계산
+                }
+            }
+            // total_price 소수점 세 번째 자리에서 반올림
+            total_price = Math.round(total_price * 100) / 100;
         }
 
-        return { cart: user.cart };
+        // CartDTO 생성
+        const cartDTO = new CartDTO(items.length > 0 ? items : null, total_price, budget);
 
+        // 응답 반환
+        return { cart: cartDTO };
     } catch (error) {
-        console.error("", error);
-        throw new Error('');
+        console.error(error);
+        throw new Error('Failed to get items from cart');
     }
 };
 
