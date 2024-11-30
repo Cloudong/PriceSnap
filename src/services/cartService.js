@@ -71,7 +71,20 @@ const generateCartId = () => {
 
 // 장바구니 상품 조회 함수
 const getCart = async (userId) => {
+    try{
+        // 사용자의 장바구니 조회
+        const user = await getUserById(userId); // 사용자 정보를 가져오는 함수
 
+        // 장바구니가 없는 경우 새로 생성
+        if (!user.cart) {
+        }
+
+        return { cart: user.cart };
+
+    } catch (error) {
+        console.error("", error);
+        throw new Error('');
+    }
 };
 
 module.exports = {
