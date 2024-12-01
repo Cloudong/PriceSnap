@@ -46,8 +46,20 @@ functions:
               - "https://d6rlnxefknq73.cloudfront.net"
               - "http://localhost:3000"
             allowCredentials: true
+            allowMethods: 
+              - "GET"
+              - "POST"
+              - "PUT"
+              - "DELETE"
+              - "PATCH"
+              - "OPTIONS"
             allowHeaders: 
-              - "*" 
+              - "Content-Type"
+              - "Authorization"
+              - "X-Amz-Date"
+              - "X-Amz-Security-Token"
+              - "X-Api-Key"
+              - "X-Amz-User-Agent"
 
 resources:
   Resources:
