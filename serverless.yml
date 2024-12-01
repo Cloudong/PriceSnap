@@ -31,8 +31,9 @@ provider:
             - Fn::GetAtt: [ProductsTable, Arn]  # 새로운 테이블의 ARN 추가
   environment:
     USERS_TABLE: ${param:tableName}
-    PRODUCTS_TABLE: ${param:productsTableName}  # 새로운 환경 변수 추가
-
+    PRODUCTS_TABLE: ${param:productsTableName} # 새로운 환경 변수 추가
+    SESSION_KEY: "session-key"
+     
 functions:
   api:
     handler: src/index.handler
