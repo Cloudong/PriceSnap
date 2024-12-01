@@ -43,7 +43,10 @@ const updateNameById = async (userId, newName) => {
         Key: {
             userId: userId,
         },
-        UpdateExpression: "SET name = :newName",
+        UpdateExpression: "SET #name = :newName",
+        ExpressionAttributeNames: {
+            "#name": "name",
+        },
         ExpressionAttributeValues: {
             ":newName": newName,
         },
