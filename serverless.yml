@@ -44,16 +44,7 @@ functions:
     handler: src/index.handler
     events:
       - httpApi:  # API Gateway의 httpApi 이벤트 사용
-          path: /api/users  # 사용자 API 엔드포인트
-          method: ANY  # 모든 메서드 허용
-      - httpApi:
-          path: /api/products
-          method: ANY
-      - httpApi:
-          path: /api/carts
-          method: ANY
-      - httpApi:
-          path: /api/budgets
+          path: /api/{proxy+}  # 모든 /api/... 요청을 처리
           method: ANY
 
 resources:
