@@ -29,6 +29,11 @@ provider:
           Resource:
             - Fn::GetAtt: [UsersTable, Arn]
             - Fn::GetAtt: [ProductsTable, Arn]  # 새로운 테이블의 ARN 추가
+        - Effect: Allow
+          Action:
+            - execute-api:Invoke
+          Resource:
+            - "*"
   environment:
     USERS_TABLE: ${param:tableName}
     PRODUCTS_TABLE: ${param:productsTableName} # 새로운 환경 변수 추가
@@ -38,28 +43,18 @@ functions:
   api:
     handler: src/index.handler
     events:
+      - httpApi:  # API Gateway의 httpApi 이벤트 사용
+          path: /api/users  # 사용자 API 엔드포인트
+          method: ANY  # 모든 메서드 허용
       - httpApi:
-          path: /api/{proxy+}
+          path: /api/products
           method: ANY
-          cors:
-            origin: 
-              - "https://d6rlnxefknq73.cloudfront.net"
-              - "http://localhost:3000"
-            allowCredentials: true
-            allowMethods: 
-              - "GET"
-              - "POST"
-              - "PUT"
-              - "DELETE"
-              - "PATCH"
-              - "OPTIONS"
-            allowHeaders: 
-              - "Content-Type"
-              - "Authorization"
-              - "X-Amz-Date"
-              - "X-Amz-Security-Token"
-              - "X-Api-Key"
-              - "X-Amz-User-Agent"
+      - httpApi:
+          path: /api/carts
+          method: ANY
+      - httpApi:
+          path: /api/budgets
+          method: ANY
 
 resources:
   Resources:

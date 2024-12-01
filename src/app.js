@@ -17,16 +17,16 @@ app.use(express.urlencoded({ extended: true }));
 const corsOptions = {
     origin: ["https://d6rlnxefknq73.cloudfront.net", "http://localhost:3000"],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: '*', // 모든 헤더 허용
+    allowedHeaders: 'Content-Type, Authorization, Set-Cookie',
     credentials: true // 쿠키 및 인증 정보 포함
 };
 app.use(cors(corsOptions));
 
 // OPTIONS 요청에 대한 응답 설정
 app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', 'https://d6rlnxefknq73.cloudfront.net');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); 
-    res.header('Access-Control-Allow-Headers', '*');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Set-Cookie');
     res.sendStatus(200);
 });
 
