@@ -29,6 +29,11 @@ provider:
           Resource:
             - Fn::GetAtt: [UsersTable, Arn]
             - Fn::GetAtt: [ProductsTable, Arn]  # 새로운 테이블의 ARN 추가
+        - Effect: Allow
+          Action:
+            - execute-api:Invoke
+          Resource:
+            - "*"
   environment:
     USERS_TABLE: ${param:tableName}
     PRODUCTS_TABLE: ${param:productsTableName} # 새로운 환경 변수 추가
@@ -39,7 +44,7 @@ functions:
     handler: src/index.handler
     events:
       - httpApi:
-          path: /api/{proxy+}
+          path: "*"
           method: ANY
           cors:
             origin: 
@@ -60,6 +65,7 @@ functions:
               - "X-Amz-Security-Token"
               - "X-Api-Key"
               - "X-Amz-User-Agent"
+              - "Set-Cookie"
 
 resources:
   Resources:
