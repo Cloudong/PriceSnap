@@ -16,6 +16,7 @@ router.post("/login", userHandler.getUser);
 router.delete("/logout", userHandler.logoutUser);
 
 // 사용자 세션 정보 반환 필요한가?
+router.get("/session", userHandler.getSession);
 
 // 이름 업데이트 라우트
 router.patch("/update-name", userHandler.updateUserName);
