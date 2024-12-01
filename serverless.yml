@@ -39,7 +39,7 @@ functions:
     handler: src/index.handler
     events:
       - httpApi:
-          path: /api
+          path: /api/{proxy+}
           method: ANY
           cors:
             origin: 
