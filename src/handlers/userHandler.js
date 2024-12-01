@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { fetchUser, registerUser, updateName } = require("../services/userService");
 
 const getUser = async (req, res) => {
