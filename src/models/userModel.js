@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const docClient = require("../config/dbConfig");
 const { GetCommand, PutCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
 
@@ -98,10 +98,10 @@ const updateBudgetById = async (user) => {
     await docClient.send(command);
 };
 
-module.exports = { 
-    getUserById, 
-    createUser, 
-    updateNameById, 
-    updateCartById, 
-    updateBudgetById 
+module.exports = {
+    getUserById,
+    createUser,
+    updateNameById,
+    updateCartById,
+    updateBudgetById,
 };
