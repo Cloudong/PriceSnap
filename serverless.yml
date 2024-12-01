@@ -46,6 +46,8 @@ functions:
               - "https://d6rlnxefknq73.cloudfront.net"
               - "http://localhost:3000"
             allowCredentials: true
+            allowHeaders: 
+              - "*" 
 
 resources:
   Resources:
