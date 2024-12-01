@@ -38,7 +38,14 @@ functions:
   api:
     handler: src/index.handler
     events:
-      - httpApi: "*"
+      - httpApi:
+          path: /api
+          method: ANY
+          cors:
+            origin: 
+              - "https://d6rlnxefknq73.cloudfront.net"
+              - "http://localhost:3000"
+            allowCredentials: true
 
 resources:
   Resources:
