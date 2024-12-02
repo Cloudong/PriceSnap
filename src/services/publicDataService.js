@@ -6,7 +6,7 @@ const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE;
 
 const apiStartUrl = process.env.API_START_URL;
 const apiKey = process.env.API_KEY;
-const type = process.env.API_FORMAT;
+const type = process.env.API_TYPE;
 const language = process.env.API_LANGUAGE;
 const requestStart = process.env.API_REQUEST_START;
 const requestEnd = process.env.API_REQUEST_END;
@@ -74,7 +74,7 @@ async function saveOrUpdateDynamoDB(item) {
     }
 }
 
-function transformData(apiDataCurrent, apiDataPrevious, category) {
+function transformData(apiDataCurrent, apiDataPrevious, apiDataTwoMonthsAgo, category) {
     if (apiDataCurrent.length === 0) return null;
 
     const productId = `${apiDataCurrent[0].ITEM_CODE1}_${apiDataCurrent[0].TIME}`;
@@ -95,11 +95,20 @@ function transformData(apiDataCurrent, apiDataPrevious, category) {
             price_date: entry.TIME,
         }));
 
-    const priceInfo = [...currentPriceInfo, ...previousPriceInfo];
+    const twoMonthsAgoPriceInfo = apiDataTwoMonthsAgo
+        .filter((entry) => entry.TIME !== apiDataCurrent[0].TIME && entry.TIME !== apiDataPrevious[0]?.TIME)
+        .map((entry) => ({
+            price: parseFloat(entry.DATA_VALUE),
+            price_type: "전전월",
+            price_date: entry.TIME,
+        }));
+
+    const priceInfo = [...currentPriceInfo, ...previousPriceInfo, ...twoMonthsAgoPriceInfo];
 
     // 현재 및 전월 가격 추출 (마지막 항목 기준)
     const currentPrice = parseFloat(apiDataCurrent[apiDataCurrent.length - 1]?.DATA_VALUE || 0);
     const previousPrice = previousPriceInfo.length > 0 ? parseFloat(previousPriceInfo[previousPriceInfo.length - 1]?.price || 0) : null;
+    const twoMonthsAgoPrice = twoMonthsAgoPriceInfo.length > 0 ? parseFloat(twoMonthsAgoPriceInfo[twoMonthsAgoPriceInfo.length - 1]?.price || 0) : null;
 
     // 가격 변동 계산
     let priceChange = "데이터 없음";
@@ -119,6 +128,7 @@ function transformData(apiDataCurrent, apiDataPrevious, category) {
         price_trend: {
             current_month_price: currentPrice,
             previous_month_price: previousPrice || "없음",
+            previous_two_months_price: twoMonthsAgoPrice || "없음",
             price_change: priceChange,
             price_decline: priceDecline,
         },
@@ -132,9 +142,10 @@ async function startFetch() {
                 const itemCode = `${category}${String(i).padStart(2, "0")}`;
                 console.log(`API 호출: ${itemCode}`);
 
-                const apiDataCurrent = await fetchData(itemCode);
-                const apiDataPrevious = await fetchData(itemCode, -1);
-                const transformedData = transformData(apiDataCurrent, apiDataPrevious, category);
+                const apiDataCurrent = await fetchData(itemCode, -1);
+                const apiDataPrevious = await fetchData(itemCode, -2);
+                const apiDataTwoMonthsAgo = await fetchData(itemCode, -3);
+                const transformedData = transformData(apiDataCurrent, apiDataPrevious, apiDataTwoMonthsAgo, category);
 
                 if (transformedData) {
                     await saveOrUpdateDynamoDB(transformedData);
@@ -147,5 +158,7 @@ async function startFetch() {
         console.log("오류 발생:", error.message);
     }
 }
+
+startFetch();
 
 module.exports = { startFetch };
