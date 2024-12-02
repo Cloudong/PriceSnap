@@ -34,7 +34,7 @@ const getAllProductsInDB = async () => {
             const priceInfo = item.price_info.reduce((acc, price) => {
                 // price_type에 따라 적절한 키에 가격을 매핑
                 if (price.price_type === "현재") {
-                    acc.current_week_price = price.price;
+                    acc.current_month_price = price.price;
                 } else if (price.price_type === "전월") {
                     acc.previous_month_price = price.price;
                 } else if (price.price_type === "전주") {
@@ -47,7 +47,7 @@ const getAllProductsInDB = async () => {
             return new ProductDTO(
                 item.productId,
                 item.product_name,
-                priceInfo.current_week_price || null, // 기본값 설정
+                priceInfo.current_month_price || null, // 기본값 설정
                 priceInfo.previous_month_price || null, // 기본값 설정
                 priceInfo.previous_week_price || null // 기본값 설정
             );
@@ -80,7 +80,7 @@ const searchProductsInDB = async (name) => {
             const priceInfo = item.price_info.reduce((acc, price) => {
                 // price_type에 따라 적절한 키에 가격을 매핑
                 if (price.price_type === "현재") {
-                    acc.current_week_price = price.price;
+                    acc.current_month_price = price.price;
                 } else if (price.price_type === "전월") {
                     acc.previous_month_price = price.price;
                 } else if (price.price_type === "전주") {
@@ -93,7 +93,7 @@ const searchProductsInDB = async (name) => {
             return new ProductDTO(
                 item.productId,
                 item.product_name,
-                priceInfo.current_week_price || null, // 기본값 설정
+                priceInfo.current_month_price || null, // 기본값 설정
                 priceInfo.previous_month_price || null, // 기본값 설정
                 priceInfo.previous_week_price || null // 기본값 설정
             );
@@ -126,7 +126,7 @@ const searchCategoryInDB = async (category) => {
             const priceInfo = item.price_info.reduce((acc, price) => {
                 // price_type에 따라 적절한 키에 가격을 매핑
                 if (price.price_type === "현재") {
-                    acc.current_week_price = price.price;
+                    acc.current_month_price = price.price;
                 } else if (price.price_type === "전월") {
                     acc.previous_month_price = price.price;
                 } else if (price.price_type === "전주") {
@@ -140,7 +140,7 @@ const searchCategoryInDB = async (category) => {
                 item.productId,
                 item.product_name,
                 item.category,
-                priceInfo.current_week_price || null, // 기본값 설정
+                priceInfo.current_month_price || null, // 기본값 설정
                 priceInfo.previous_month_price || null, // 기본값 설정
                 priceInfo.previous_week_price || null // 기본값 설정
             );
@@ -170,7 +170,7 @@ const getTopDecliningProducts = async () => {
         ).map((item) => ({
             product_id: item.productId,
             product_name: item.product_name,
-            current_week_price: item.price_trend.current_week_price,
+            current_month_price: item.price_trend.current_month_price,
             price_decline: item.price_trend.price_decline,
         }));
 
@@ -179,7 +179,7 @@ const getTopDecliningProducts = async () => {
 
         // ProductTrendDTO 인스턴스 생성
         const productTrends = topDecliningProducts.map(
-            (product) => new ProductTrendDTO(product.product_id, product.product_name, product.current_week_price, product.price_decline)
+            (product) => new ProductTrendDTO(product.product_id, product.product_name, product.current_month_price, product.price_decline)
         );
 
         // 최종 응답 형식

@@ -29,15 +29,23 @@ provider:
           Resource:
             - Fn::GetAtt: [UsersTable, Arn]
             - Fn::GetAtt: [ProductsTable, Arn]  # 새로운 테이블의 ARN 추가
+        - Effect: Allow
+          Action:
+            - execute-api:Invoke
+          Resource:
+            - "*"
   environment:
     USERS_TABLE: ${param:tableName}
-    PRODUCTS_TABLE: ${param:productsTableName}  # 새로운 환경 변수 추가
-
+    PRODUCTS_TABLE: ${param:productsTableName} # 새로운 환경 변수 추가
+    SESSION_KEY: "session-key"
+     
 functions:
   api:
     handler: src/index.handler
     events:
-      - httpApi: "*"
+      - httpApi:  # API Gateway의 httpApi 이벤트 사용
+          path: /api/{proxy+}  # 모든 /api/... 요청을 처리
+          method: ANY
 
 resources:
   Resources:
