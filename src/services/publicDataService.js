@@ -159,6 +159,4 @@ async function startFetch() {
     }
 }
 
-startFetch();
-
 module.exports = { startFetch };
