@@ -3,14 +3,10 @@ const { addProductToCart, getCart } = require('../services/cartService');
 const addProductToCartHandler = async (req, res) => {
     try {
         // 세션에서 userId 가져오기
-        //const userId = req.session.userId;
-
-        userId = 'cartTest3'; // session 없이 테스트 위해 가상 user 설정
-
-        // userId가 없는 경우 에러 처리
-        if (!userId) {
-            throw new Error('User not logged in');
+        if (!req.session.user || !req.session.user.userId) {
+            return res.status(401).json({ message: "Not logged in" });
         }
+        const userId = req.session.user.userId;
 
         const {product_id, quantity } = req.body;
 
@@ -29,14 +25,10 @@ const addProductToCartHandler = async (req, res) => {
 const getCartHandler = async (req, res) => {
     try {
         // 세션에서 userId 가져오기
-        //const userId = req.session.userId;
-
-        userId = 'cartTest3'; // session 없이 테스트 위해 가상 user 설정
-
-        // userId가 없는 경우 에러 처리
-        if (!userId) {
-            throw new Error('User not logged in');
+        if (!req.session.user || !req.session.user.userId) {
+            return res.status(401).json({ message: "Not logged in" });
         }
+        const userId = req.session.user.userId;
 
         const cartResponse = await getCart(userId);
         res.status(200).json( cartResponse );
