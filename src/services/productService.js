@@ -37,8 +37,8 @@ const getAllProductsInDB = async () => {
                     acc.current_month_price = price.price;
                 } else if (price.price_type === "전월") {
                     acc.previous_month_price = price.price;
-                } else if (price.price_type === "전주") {
-                    acc.previous_week_price = price.price;
+                } else if (price.price_type === "전전월") {
+                    acc.previous_two_months_price = price.price;
                 }
                 return acc;
             }, {});
@@ -49,7 +49,7 @@ const getAllProductsInDB = async () => {
                 item.product_name,
                 priceInfo.current_month_price || null, // 기본값 설정
                 priceInfo.previous_month_price || null, // 기본값 설정
-                priceInfo.previous_week_price || null // 기본값 설정
+                priceInfo.previous_two_months_price || null // 기본값 설정
             );
         });
 
@@ -83,8 +83,8 @@ const searchProductsInDB = async (name) => {
                     acc.current_month_price = price.price;
                 } else if (price.price_type === "전월") {
                     acc.previous_month_price = price.price;
-                } else if (price.price_type === "전주") {
-                    acc.previous_week_price = price.price;
+                } else if (price.price_type === "전전월") {
+                    acc.previous_two_months_price = price.price;
                 }
                 return acc;
             }, {});
@@ -95,7 +95,7 @@ const searchProductsInDB = async (name) => {
                 item.product_name,
                 priceInfo.current_month_price || null, // 기본값 설정
                 priceInfo.previous_month_price || null, // 기본값 설정
-                priceInfo.previous_week_price || null // 기본값 설정
+                priceInfo.previous_two_months_price || null // 기본값 설정
             );
         });
 
@@ -129,8 +129,8 @@ const searchCategoryInDB = async (category) => {
                     acc.current_month_price = price.price;
                 } else if (price.price_type === "전월") {
                     acc.previous_month_price = price.price;
-                } else if (price.price_type === "전주") {
-                    acc.previous_week_price = price.price;
+                } else if (price.price_type === "전전월") {
+                    acc.previous_two_months_price = price.price;
                 }
                 return acc;
             }, {});
@@ -142,7 +142,7 @@ const searchCategoryInDB = async (category) => {
                 item.category,
                 priceInfo.current_month_price || null, // 기본값 설정
                 priceInfo.previous_month_price || null, // 기본값 설정
-                priceInfo.previous_week_price || null // 기본값 설정
+                priceInfo.previous_two_months_price || null // 기본값 설정
             );
         });
 
@@ -190,4 +190,11 @@ const getTopDecliningProducts = async () => {
     }
 };
 
-module.exports = { fetchProduct, createProductInDB, getAllProductsInDB, searchProductsInDB, searchCategoryInDB, getTopDecliningProducts }; // 함수 내보내기
+module.exports = { 
+    fetchProduct, 
+    createProductInDB, 
+    getAllProductsInDB, 
+    searchProductsInDB, 
+    searchCategoryInDB, 
+    getTopDecliningProducts 
+}; // 함수 내보내기
