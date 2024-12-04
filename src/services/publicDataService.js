@@ -142,9 +142,9 @@ async function startFetch() {
                 const itemCode = `${category}${String(i).padStart(2, "0")}`;
                 console.log(`API 호출: ${itemCode}`);
 
-                const apiDataCurrent = await fetchData(itemCode, -1);
-                const apiDataPrevious = await fetchData(itemCode, -2);
-                const apiDataTwoMonthsAgo = await fetchData(itemCode, -3);
+                const apiDataCurrent = await fetchData(itemCode);
+                const apiDataPrevious = await fetchData(itemCode, -1);
+                const apiDataTwoMonthsAgo = await fetchData(itemCode, -2);
                 const transformedData = transformData(apiDataCurrent, apiDataPrevious, apiDataTwoMonthsAgo, category);
 
                 if (transformedData) {
