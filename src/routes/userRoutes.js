@@ -13,12 +13,12 @@ router.post("/register", userHandler.createUser);
 router.post("/login", userHandler.getUser);
 
 // 사용자 로그아웃 라우트
-router.delete("/logout", userHandler.logoutUser);
+router.delete("/logout", userHandler.logoutUser, userHandler.authenticateToken);
 
 // 사용자 세션 정보 반환 필요한가?
-router.get("/session", userHandler.getSession);
+router.get("/session", userHandler.getSession, userHandler.authenticateToken);
 
 // 이름 업데이트 라우트
-router.patch("/update-name", userHandler.updateUserName);
+router.patch("/update-name", userHandler.updateUserName, userHandler.authenticateToken);
 
 module.exports = router;
