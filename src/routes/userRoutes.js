@@ -3,9 +3,6 @@ const userHandler = require("../handlers/userHandler");
 
 const router = express.Router();
 
-// 사용자 조회 라우트
-// router.get("/:userId", userHandler.getUser);
-
 // 사용자 생성 라우트
 router.post("/register", userHandler.createUser);
 
@@ -13,12 +10,12 @@ router.post("/register", userHandler.createUser);
 router.post("/login", userHandler.getUser);
 
 // 사용자 로그아웃 라우트
-router.delete("/logout", userHandler.logoutUser, userHandler.authenticateToken);
+router.delete("/logout", userHandler.authenticateToken, userHandler.logoutUser);
 
 // 사용자 세션 정보 반환 필요한가?
-router.get("/session", userHandler.getSession, userHandler.authenticateToken);
+router.get("/session", userHandler.authenticateToken, userHandler.getSession);
 
 // 이름 업데이트 라우트
-router.patch("/update-name", userHandler.updateUserName, userHandler.authenticateToken);
+router.patch("/update-name", userHandler.authenticateToken, userHandler.updateUserName);
 
 module.exports = router;

@@ -2,6 +2,7 @@ const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 // 1달 간격으로 데이터 불러오기 위한 라이브러리
 const cron = require("node-cron");
 const { startFetch } = require("../src/services/publicDataService");
@@ -33,15 +34,8 @@ app.use(cors(corsOptions));
 //     res.sendStatus(200);
 // });
 
-// 세션 설정
-app.use(
-    session({
-        secret: process.env.SESSION_KEY,
-        resave: false,
-        saveUninitialized: true,
-        cookie: { secure: true }, // 로컬은 HTTP이므로 로컬 테스트 시 false로 변경
-    })
-);
+// 쿠키 미들웨어 설정
+app.use(cookieParser());
 
 // body-parser 설정
 app.use(bodyParser.urlencoded({ extended: true }));
