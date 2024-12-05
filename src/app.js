@@ -37,7 +37,6 @@ app.use(cors(corsOptions));
 app.use(
     session({
         secret: process.env.SESSION_KEY,
-        store: store,
         resave: false,
         saveUninitialized: true,
         cookie: { secure: true }, // 로컬은 HTTP이므로 로컬 테스트 시 false로 변경
