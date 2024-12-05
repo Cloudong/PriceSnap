@@ -26,17 +26,18 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // OPTIONS 요청에 대한 응답 설정
-app.options("*", (req, res) => {
-    res.header("Access-Control-Allow-Origin", "https://d6rlnxefknq73.cloudfront.net");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie");
-    res.sendStatus(200);
-});
+// app.options("*", (req, res) => {
+//     res.header("Access-Control-Allow-Origin", "https://d6rlnxefknq73.cloudfront.net");
+//     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+//     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie");
+//     res.sendStatus(200);
+// });
 
 // 세션 설정
 app.use(
     session({
         secret: process.env.SESSION_KEY,
+        store: store,
         resave: false,
         saveUninitialized: true,
         cookie: { secure: true }, // 로컬은 HTTP이므로 로컬 테스트 시 false로 변경
