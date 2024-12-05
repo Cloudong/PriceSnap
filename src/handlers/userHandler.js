@@ -9,7 +9,7 @@ function generateToken(userId) {
 }
 
 function authenticateToken(req, res, next) {
-    const token = req.cookies.token; // 또는 Authorization 헤더에서 토큰 추출
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[1]; // 또는 Authorization 헤더에서 토큰 추출
 
     if (!token) {
         console.error("Token not found");
