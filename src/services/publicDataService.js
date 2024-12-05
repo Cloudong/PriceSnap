@@ -25,6 +25,8 @@ const categoryRanges = {
     A019: { start: 1, end: 20 },
 };
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 function getDate(offset = 0, format = "YYYYMM") {
     const date = new Date();
     date.setMonth(date.getMonth() + offset);
@@ -135,28 +137,43 @@ function transformData(apiDataCurrent, apiDataPrevious, apiDataTwoMonthsAgo, cat
     };
 }
 
-async function startFetch() {
-    try {
-        for (const [category, { start, end }] of Object.entries(categoryRanges)) {
-            for (let i = start; i <= end; i++) {
-                const itemCode = `${category}${String(i).padStart(2, "0")}`;
-                console.log(`API 호출: ${itemCode}`);
+async function fetchBatch(categories) {
+    for (const [category, { start, end }] of categories) {
+        for (let i = start; i <= end; i++) {
+            const itemCode = `${category}${String(i).padStart(2, "0")}`;
+            console.log(`API 호출: ${itemCode}`);
 
-                const apiDataCurrent = await fetchData(itemCode);
-                const apiDataPrevious = await fetchData(itemCode, -1);
-                const apiDataTwoMonthsAgo = await fetchData(itemCode, -2);
-                const transformedData = transformData(apiDataCurrent, apiDataPrevious, apiDataTwoMonthsAgo, category);
+            const apiDataCurrent = await fetchData(itemCode);
+            const apiDataPrevious = await fetchData(itemCode, -1);
+            const apiDataTwoMonthsAgo = await fetchData(itemCode, -2);
+            const transformedData = transformData(apiDataCurrent, apiDataPrevious, apiDataTwoMonthsAgo, category);
 
-                if (transformedData) {
-                    await saveOrUpdateDynamoDB(transformedData);
-                } else {
-                    console.log(`변환된 데이터 없음: ${category} - ${itemCode}`);
-                }
+            if (transformedData) {
+                await saveOrUpdateDynamoDB(transformedData);
+            } else {
+                console.log(`변환된 데이터 없음: ${category} - ${itemCode}`);
             }
         }
-    } catch (error) {
-        console.log("오류 발생:", error.message);
     }
+}
+
+async function startFetch() {
+    const categoryEntries = Object.entries(categoryRanges);
+    const batchSize = Math.ceil(categoryEntries.length / 2); // 두 개의 배치로 나누기
+
+    const firstBatch = categoryEntries.slice(0, batchSize);
+    const secondBatch = categoryEntries.slice(batchSize);
+
+    console.log("첫 번째 배치 실행");
+    await fetchBatch(firstBatch);
+
+    console.log("40분 대기");
+    await delay(40 * 60 * 1000); // 45분 대기
+
+    console.log("두 번째 배치 실행");
+    await fetchBatch(secondBatch);
+
+    console.log("startFetch 완료");
 }
 
 module.exports = { startFetch };
