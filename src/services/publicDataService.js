@@ -1,6 +1,7 @@
 const axios = require("axios");
 const docClient = require("../config/dbConfig");
 const { PutCommand } = require("@aws-sdk/lib-dynamodb");
+const categoryRanges = require("../categories.js");
 
 const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE;
 
@@ -13,17 +14,17 @@ const requestEnd = process.env.API_REQUEST_END;
 const statCode = process.env.API_STATCODE;
 const period = process.env.API_PERIOD;
 
-const categoryRanges = {
-    A011: { start: 1, end: 18 },
-    A012: { start: 1, end: 7 },
-    A013: { start: 1, end: 19 },
-    A014: { start: 1, end: 5 },
-    A015: { start: 1, end: 2 },
-    A016: { start: 1, end: 20 },
-    A017: { start: 1, end: 30 },
-    A018: { start: 1, end: 11 },
-    A019: { start: 1, end: 20 },
-};
+// const categoryRanges = {
+//     A011: { start: 1, end: 18 },
+//     A012: { start: 1, end: 7 },
+//     A013: { start: 1, end: 19 },
+//     A014: { start: 1, end: 5 },
+//     A015: { start: 1, end: 2 },
+//     A016: { start: 1, end: 20 },
+//     A017: { start: 1, end: 30 },
+//     A018: { start: 1, end: 11 },
+//     A019: { start: 1, end: 20 },
+// };
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -37,6 +38,36 @@ function getDate(offset = 0, format = "YYYYMM") {
     if (format === "YYYYMM") {
         return `${year}${month}`;
     }
+}
+
+function splitIntoBatches(categories, maxCallsPerBatch = 300) {
+    const categoryEntries = Object.entries(categories);
+    const batches = [];
+    let currentBatch = [];
+    let currentBatchCalls = 0;
+
+    for (const [category, { start, end }] of categoryEntries) {
+        const calls = end - start + 1;
+
+        // 현재 배치에 추가하면 최대 호출 횟수를 초과하는지 확인
+        if (currentBatchCalls + calls > maxCallsPerBatch) {
+            // 현재 배치를 저장하고 새 배치 시작
+            batches.push(currentBatch);
+            currentBatch = [];
+            currentBatchCalls = 0;
+        }
+
+        // 카테고리를 현재 배치에 추가
+        currentBatch.push([category, { start, end }]);
+        currentBatchCalls += calls;
+    }
+
+    // 마지막 배치를 추가
+    if (currentBatch.length > 0) {
+        batches.push(currentBatch);
+    }
+
+    return batches;
 }
 
 async function fetchData(itemCode, offset = 0) {
@@ -158,22 +189,21 @@ async function fetchBatch(categories) {
 }
 
 async function startFetch() {
-    const categoryEntries = Object.entries(categoryRanges);
-    const batchSize = Math.ceil(categoryEntries.length / 2); // 두 개의 배치로 나누기
+    const batches = splitIntoBatches(categoryRanges);
 
-    const firstBatch = categoryEntries.slice(0, batchSize);
-    const secondBatch = categoryEntries.slice(batchSize);
+    for (let i = 0; i < batches.length; i++) {
+        console.log(`배치 ${i + 1} 실행 (총 ${batches[i].length}개의 카테고리)`);
+        await fetchBatch(batches[i]);
 
-    console.log("첫 번째 배치 실행");
-    await fetchBatch(firstBatch);
-
-    console.log("40분 대기");
-    await delay(40 * 60 * 1000); // 45분 대기
-
-    console.log("두 번째 배치 실행");
-    await fetchBatch(secondBatch);
+        if (i < batches.length - 1) {
+            console.log("35분 대기");
+            // await delay(35 * 60 * 1000); // 40분 대기
+        }
+    }
 
     console.log("startFetch 완료");
 }
+
+startFetch();
 
 module.exports = { startFetch };
