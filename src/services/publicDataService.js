@@ -1,6 +1,6 @@
 const axios = require("axios");
 const docClient = require("../config/dbConfig");
-const { GetCommand, PutCommand, ScanCommand } = require("@aws-sdk/lib-dynamodb");
+const { PutCommand } = require("@aws-sdk/lib-dynamodb");
 
 const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE;
 
