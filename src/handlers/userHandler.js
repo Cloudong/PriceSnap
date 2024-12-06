@@ -9,6 +9,8 @@ function generateToken(userId) {
 }
 
 function authenticateToken(req, res, next) {
+    console.log("Cookies:", req.cookies.token);
+    console.log("Authorization Header:", req.headers.authorization);
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1]; // 또는 Authorization 헤더에서 토큰 추출
 
     if (!token) {

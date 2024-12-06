@@ -14,18 +14,6 @@ const requestEnd = process.env.API_REQUEST_END;
 const statCode = process.env.API_STATCODE;
 const period = process.env.API_PERIOD;
 
-// const categoryRanges = {
-//     A011: { start: 1, end: 18 },
-//     A012: { start: 1, end: 7 },
-//     A013: { start: 1, end: 19 },
-//     A014: { start: 1, end: 5 },
-//     A015: { start: 1, end: 2 },
-//     A016: { start: 1, end: 20 },
-//     A017: { start: 1, end: 30 },
-//     A018: { start: 1, end: 11 },
-//     A019: { start: 1, end: 20 },
-// };
-
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function getDate(offset = 0, format = "YYYYMM") {
@@ -197,13 +185,13 @@ async function startFetch() {
 
         if (i < batches.length - 1) {
             console.log("35분 대기");
-            // await delay(35 * 60 * 1000); // 40분 대기
+            await delay(35 * 60 * 1000); // 40분 대기
         }
     }
 
     console.log("startFetch 완료");
 }
 
-startFetch();
+// startFetch();
 
 module.exports = { startFetch };
