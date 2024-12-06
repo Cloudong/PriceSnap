@@ -2,11 +2,11 @@ const { addProductToCart, getCart } = require('../services/cartService');
 
 const addProductToCartHandler = async (req, res) => {
     try {
-        // 세션에서 userId 가져오기
-        if (!req.session.user || !req.session.user.userId) {
+        // JWT에서 userId 가져오기
+        if (!req.user || !req.user.userId) {
             return res.status(401).json({ message: "Not logged in" });
         }
-        const userId = req.session.user.userId;
+        const userId = req.user.userId; // JWT에서 userId 가져옴
 
         const {product_id, quantity } = req.body;
 
@@ -24,11 +24,11 @@ const addProductToCartHandler = async (req, res) => {
 
 const getCartHandler = async (req, res) => {
     try {
-        // 세션에서 userId 가져오기
-        if (!req.session.user || !req.session.user.userId) {
+        // JWT에서 userId 가져오기
+        if (!req.user || !req.user.userId) {
             return res.status(401).json({ message: "Not logged in" });
         }
-        const userId = req.session.user.userId;
+        const userId = req.user.userId; // JWT에서 userId 가져옴
 
         const cartResponse = await getCart(userId);
         res.status(200).json( cartResponse );
