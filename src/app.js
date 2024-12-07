@@ -1,5 +1,4 @@
 const express = require("express");
-const session = require("express-session");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -53,10 +52,6 @@ cron.schedule("0 0 5 * *", async () => {
     } catch (error) {
         console.error("startFetch 실행 중 오류 발생: ", error.message);
     }
-});
-
-app.listen("4000", () => {
-    console.log(`Server is running on port 4000`);
 });
 
 module.exports = app;
