@@ -10,4 +10,7 @@ router.post("/", userHandler.authenticateToken, cartHandler.addProductToCartHand
 // 장바구니 조회 API 라우트
 router.get("/", userHandler.authenticateToken, cartHandler.getCartHandler);
 
+// 장바구니 상품 갱신 라우트
+router.post("/update", userHandler.authenticateToken, cartHandler.updateCartHandler);
+
 module.exports = router;
