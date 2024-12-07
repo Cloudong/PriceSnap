@@ -192,6 +192,4 @@ async function startFetch() {
     console.log("startFetch 완료");
 }
 
-// startFetch();
-
 module.exports = { startFetch };
