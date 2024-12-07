@@ -28,7 +28,7 @@ function getDate(offset = 0, format = "YYYYMM") {
     }
 }
 
-function splitIntoBatches(categories, maxCallsPerBatch = 300) {
+function splitIntoBatches(categories, maxCallsPerBatch = 100) {
     const categoryEntries = Object.entries(categories);
     const batches = [];
     let currentBatch = [];
@@ -177,15 +177,15 @@ async function fetchBatch(categories) {
 }
 
 async function startFetch() {
-    const batches = splitIntoBatches(categoryRanges);
+    const batches = splitIntoBatches(categoryRanges, 100);
 
     for (let i = 0; i < batches.length; i++) {
         console.log(`배치 ${i + 1} 실행 (총 ${batches[i].length}개의 카테고리)`);
         await fetchBatch(batches[i]);
 
         if (i < batches.length - 1) {
-            console.log("35분 대기");
-            await delay(35 * 60 * 1000); // 40분 대기
+            console.log("5분 대기");
+            await delay(5 * 60 * 1000); // 5분 대기
         }
     }
 

@@ -5,21 +5,21 @@ const CartItemDTO = require("../dtos/cartDtos/CartItemDTO"); // CartItemDTO 정�
 const CartDTO = require("../dtos/cartDtos/CartDTO"); // CartDTO 정의
 
 const addProductToCart = async (userId, product_id, quantity) => {
-    try{
+    try {
         // 사용자의 장바구니 조회
         const user = await getUserById(userId); // 사용자 정보를 가져오는 함수
 
         // 장바구니가 없는 경우 새로 생성
         if (!user.cart) {
-        user.cart = {
-            cart_id: generateCartId(), // 장바구니 ID 생성 함수
-            created_at: new Date().toISOString(),
-            cart_items: []
+            user.cart = {
+                cart_id: generateCartId(), // 장바구니 ID 생성 함수
+                created_at: new Date().toISOString(),
+                cart_items: [],
             };
         }
 
         // 기존에 같은 product_id를 가진 아이템 확인
-        const existingItem = user.cart.cart_items.find(item => item.product_id === product_id);
+        const existingItem = user.cart.cart_items.find((item) => item.product_id === product_id);
 
         if (existingItem) {
             // 이미 존재하는 경우 수량 추가
@@ -31,13 +31,12 @@ const addProductToCart = async (userId, product_id, quantity) => {
                 existingItem.priority = 1;
 
                 // 현재 추가하려는 상품의 기존 priority보다 작은 priority를 가진 상품의 priority를 +1
-                user.cart.cart_items.forEach(item => {
+                user.cart.cart_items.forEach((item) => {
                     if (item.product_id !== product_id && item.priority < currentPriority) {
                         item.priority += 1;
                     }
                 });
             }
-
         } else {
             // 새로운 아이템 객체 생성
             const newItem = {
@@ -49,7 +48,7 @@ const addProductToCart = async (userId, product_id, quantity) => {
             user.cart.cart_items.push(newItem);
 
             // 모든 기존 아이템의 priority를 1씩 증가
-            user.cart.cart_items.forEach(item => {
+            user.cart.cart_items.forEach((item) => {
                 item.priority += 1;
             });
         }
@@ -58,10 +57,9 @@ const addProductToCart = async (userId, product_id, quantity) => {
         await updateCartById(user); // 사용자 정보를 DB에 저장하는 함수
 
         return { cart: user.cart };
-
     } catch (error) {
         console.error("Error adding item to cart:", error);
-        throw new Error('Could not add item to cart');
+        throw new Error("Could not add item to cart");
     }
 };
 
@@ -72,7 +70,7 @@ const generateCartId = () => {
 
 // 장바구니 상품 조회 함수
 const getCart = async (userId) => {
-    try{
+    try {
         // 사용자의 장바구니 조회
         const user = await getUserById(userId);
 
@@ -81,7 +79,7 @@ const getCart = async (userId) => {
 
         // 장바구니 아이템 조회
         const cartItems = user.cart && user.cart.cart_items ? user.cart.cart_items : null; // cart_items가 없을 경우 null 반환
-        
+
         const items = [];
         let total_price = 0;
 
@@ -96,12 +94,7 @@ const getCart = async (userId) => {
                     const quantity = item.quantity;
 
                     // CartItemDTO 생성
-                    const cartItemDTO = new CartItemDTO(
-                        item.product_id,
-                        productName,
-                        quantity,
-                        price
-                    );
+                    const cartItemDTO = new CartItemDTO(item.product_id, productName, quantity, price);
 
                     items.push(cartItemDTO); // CartItemDTO 배열에 추가
                     total_price += price * quantity; // 총 가격 계산
@@ -118,11 +111,46 @@ const getCart = async (userId) => {
         return { cart: cartDTO };
     } catch (error) {
         console.error(error);
-        throw new Error('Failed to get items from cart');
+        throw new Error("Failed to get items from cart");
+    }
+};
+
+const updateCart = async (userId, items) => {
+    try {
+        // DynamoDB에서 사용자 데이터 가져오기
+        const user = await getUserById(userId);
+
+        // 장바구니 데이터 초기화 (기존 데이터를 가져오거나 새로 생성)
+        if (!user.cart) {
+            user.cart = {
+                cart_id: generateCartId(),
+                created_at: new Date().toISOString(),
+                cart_items: [],
+            };
+        }
+
+        // 클라이언트에서 넘어온 데이터를 기반으로 장바구니 갱신
+        const updatedCartItems = items.map(({ product_id, quantity, priority }) => ({
+            product_id,
+            quantity,
+            priority,
+        }));
+
+        // 기존 cart_items를 새로운 데이터로 덮어씀
+        user.cart.cart_items = updatedCartItems;
+
+        // DynamoDB에 갱신된 데이터 저장
+        await updateCartById(user);
+
+        return { success: true, cart: user.cart };
+    } catch (error) {
+        console.error("Error updating cart:", error);
+        throw new Error("Failed to update cart");
     }
 };
 
 module.exports = {
     addProductToCart,
-    getCart
+    getCart,
+    updateCart,
 };
