@@ -164,10 +164,23 @@ const getTopDecliningProducts = async () => {
         const command = new ScanCommand(params);
         const result = await docClient.send(command);
 
+        // 전월 년월 구하기 (YYYYMM 형식)
+        const now = new Date();
+        // 전월을 구하기 위해 현재 월에서 1을 뺌
+        now.setMonth(now.getMonth() - 1);
+        const previousYearMonth = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
+
         // 가격 하락폭이 가장 큰 상품을 찾기
-        const productsWithDecline = result.Items.filter(
-            (item) => item.price_trend && item.price_trend.price_change === "감소" && item.price_trend.price_decline !== undefined
-        ).map((item) => ({
+        const productsWithDecline = result.Items.filter((item) => {
+            // price_trend 존재 여부와 감소 여부 확인
+            const hasPriceTrend = item.price_trend && item.price_trend.price_change === "감소" && item.price_trend.price_decline !== undefined;
+
+            // product_id에서 날짜 부분 추출 (마지막 6자리)
+            const itemDate = item.productId.slice(-6);
+
+            // 전월의 데이터만 필터링
+            return hasPriceTrend && itemDate === previousYearMonth;
+        }).map((item) => ({
             product_id: item.productId,
             base_id: item.productId.split("_")[0], // product_id에서 '_' 앞부분 추출
             product_name: item.product_name,
