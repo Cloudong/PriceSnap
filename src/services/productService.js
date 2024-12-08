@@ -161,28 +161,38 @@ const getTopDecliningProducts = async () => {
     };
 
     try {
-        const command = new ScanCommand(params); // ScanCommand 사용
+        const command = new ScanCommand(params);
         const result = await docClient.send(command);
 
         // 가격 하락폭이 가장 큰 상품을 찾기
         const productsWithDecline = result.Items.filter(
-            (item) => item.price_trend && item.price_trend.price_change === "감소" && item.price_trend.price_decline !== undefined // price_trend가 있는 상품만 필터링
+            (item) => item.price_trend && item.price_trend.price_change === "감소" && item.price_trend.price_decline !== undefined
         ).map((item) => ({
             product_id: item.productId,
+            base_id: item.productId.split("_")[0], // product_id에서 '_' 앞부분 추출
             product_name: item.product_name,
             current_month_price: item.price_trend.current_month_price,
             price_decline: item.price_trend.price_decline,
         }));
 
-        // 가격 하락폭으로 정렬하고 상위 5개 선택
-        const topDecliningProducts = productsWithDecline.sort((a, b) => b.price_decline - a.price_decline).slice(0, 5);
+        // base_id 기준으로 그룹화하고 각 그룹에서 price_decline이 가장 큰 항목만 선택
+        const groupedProducts = productsWithDecline.reduce((acc, curr) => {
+            if (!acc[curr.base_id] || acc[curr.base_id].price_decline < curr.price_decline) {
+                acc[curr.base_id] = curr;
+            }
+            return acc;
+        }, {});
+
+        // 객체를 배열로 변환하고 가격 하락폭으로 정렬 후 상위 5개 선택
+        const topDecliningProducts = Object.values(groupedProducts)
+            .sort((a, b) => b.price_decline - a.price_decline)
+            .slice(0, 5);
 
         // ProductTrendDTO 인스턴스 생성
         const productTrends = topDecliningProducts.map(
             (product) => new ProductTrendDTO(product.product_id, product.product_name, product.current_month_price, product.price_decline)
         );
 
-        // 최종 응답 형식
         return { trend: productTrends };
     } catch (error) {
         console.error("Unable to scan products. Error JSON:", JSON.stringify(error, null, 2));
@@ -190,11 +200,11 @@ const getTopDecliningProducts = async () => {
     }
 };
 
-module.exports = { 
-    fetchProduct, 
-    createProductInDB, 
-    getAllProductsInDB, 
-    searchProductsInDB, 
-    searchCategoryInDB, 
-    getTopDecliningProducts 
+module.exports = {
+    fetchProduct,
+    createProductInDB,
+    getAllProductsInDB,
+    searchProductsInDB,
+    searchCategoryInDB,
+    getTopDecliningProducts,
 }; // 함수 내보내기
