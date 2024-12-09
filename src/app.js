@@ -1,5 +1,4 @@
 const express = require("express");
-const session = require("express-session");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -26,14 +25,6 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// OPTIONS 요청에 대한 응답 설정
-// app.options("*", (req, res) => {
-//     res.header("Access-Control-Allow-Origin", "https://d6rlnxefknq73.cloudfront.net");
-//     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-//     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie");
-//     res.sendStatus(200);
-// });
-
 // 쿠키 미들웨어 설정
 app.use(cookieParser());
 
@@ -53,7 +44,7 @@ app.use((req, res, next) => {
 });
 
 // 스케줄링 부분 (매달 10일 자정)
-cron.schedule("0 0 10 * *", async () => {
+cron.schedule("0 0 5 * *", async () => {
     console.log("스케줄링 실행: startFetch 함수 호출");
     try {
         await startFetch();
@@ -61,10 +52,6 @@ cron.schedule("0 0 10 * *", async () => {
     } catch (error) {
         console.error("startFetch 실행 중 오류 발생: ", error.message);
     }
-});
-
-app.listen("4000", () => {
-    console.log(`Server is running on port 4000`);
 });
 
 module.exports = app;
