@@ -100,7 +100,8 @@ const getCart = async (userId) => {
                         item.product_id,
                         productName,
                         quantity,
-                        price
+                        price,
+                        item.priority
                     );
 
                     items.push(cartItemDTO); // CartItemDTO 배열에 추가
