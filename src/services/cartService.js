@@ -94,13 +94,8 @@ const getCart = async (userId) => {
                     const quantity = item.quantity;
 
                     // CartItemDTO 생성
-                    const cartItemDTO = new CartItemDTO(
-                        item.product_id,
-                        productName,
-                        quantity,
-                        price,
-                        item.priority
-                    );
+                    const cartItemDTO = new CartItemDTO(item.product_id, productName, quantity, price);
+
                     items.push(cartItemDTO); // CartItemDTO 배열에 추가
                     total_price += price * quantity; // 총 가격 계산
                 }
