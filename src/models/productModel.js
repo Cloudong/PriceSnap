@@ -2,11 +2,11 @@ const { connectToCollection } = require('../config/dbConfig');
 const collectionName = process.env.PRODUCTS_COLLECTION; // 사용할 컬렉션 이름
 
 // 상품 조회 함수
-const getProductById = async (product_id) => {
+const getProductById = async (productId) => {
     const collection = await connectToCollection(collectionName);
     try {
         const product = await collection.findOne(
-            { product_id },
+            { productId },
             { projection: { _id: 0 } } // _id 필드를 제외
         );
         return product; // 조회된 상품 반환
