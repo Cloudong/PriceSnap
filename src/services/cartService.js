@@ -153,18 +153,3 @@ module.exports = {
     getCart,
     updateCart,
 };
-
-
-// 테스트 데이터
-const testUserId = 'ㅋ';
-const testCart = ['item1', 'item2'];
-const testBudget = 10000;
-
-getCart(testUserId)
-    .then(a => {
-        console.log("User with updated cart:", a);
-    })
-    .catch(error => {
-        console.error("Error fetching cart:", error);
-    });
-
