@@ -1,13 +1,12 @@
 const { getProductById, createProduct } = require("../models/productModel"); // 제품 모델에서 함수 가져오기
-const docClient = require("../config/dbConfig");
-const { ScanCommand } = require("@aws-sdk/lib-dynamodb");
+const { connectToCollection } = require("../config/dbConfig"); // MongoDB 연결 함수
 
 // DTO 가져오기
 const ProductDTO = require("../dtos/productDtos/productDTO");
 const ProductCategoryDTO = require("../dtos/productDtos/productCategoryDTO");
 const ProductTrendDTO = require("../dtos/productDtos/productTrendDTO");
 
-const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE; // 환경변수에서 테이블 이름 가져오기
+const collectionName = process.env.PRODUCTS_COLLECTION; // 사용할 컬렉션 이름
 
 // 제품 ID로 제품 정보를 조회하는 함수
 const fetchProduct = async (productId) => {
@@ -21,16 +20,13 @@ const createProductInDB = async (product) => {
 
 // 모든 상품을 가져오는 함수
 const getAllProductsInDB = async () => {
-    const params = {
-        TableName: PRODUCTS_TABLE,
-    };
+    const collection = await connectToCollection(collectionName);
 
     try {
-        const command = new ScanCommand(params); // ScanCommand 사용
-        const result = await docClient.send(command);
+        const items = await collection.find({}).toArray(); // 모든 상품 조회
 
         // 최종 응답 형식에 맞게 변환
-        const products = result.Items.map((item) => {
+        const products = items.map((item) => {
             const priceInfo = item.price_info.reduce((acc, price) => {
                 // price_type에 따라 적절한 키에 가격을 매핑
                 if (price.price_type === "현재") {
@@ -63,20 +59,15 @@ const getAllProductsInDB = async () => {
 
 // 상품 키워드 검색 함수
 const searchProductsInDB = async (name) => {
-    const params = {
-        TableName: PRODUCTS_TABLE,
-        FilterExpression: "contains(product_name, :partialName)", // 부분 일치 검색
-        ExpressionAttributeValues: {
-            ":partialName": name, // 부분 일치를 위한 값
-        },
-    };
+    const collection = await connectToCollection(collectionName);
 
     try {
-        const command = new ScanCommand(params); // ScanCommand로 변경
-        const result = await docClient.send(command);
+        const items = await collection.find({
+            product_name: { $regex: name, $options: "i" } // 부분 일치 검색
+        }).toArray();
 
         // 최종 응답 형식에 맞게 변환
-        const products = result.Items.map((item) => {
+        const products = items.map((item) => {
             const priceInfo = item.price_info.reduce((acc, price) => {
                 // price_type에 따라 적절한 키에 가격을 매핑
                 if (price.price_type === "현재") {
@@ -109,20 +100,13 @@ const searchProductsInDB = async (name) => {
 
 // 상품 카테고리 검색 함수
 const searchCategoryInDB = async (category) => {
-    const params = {
-        TableName: PRODUCTS_TABLE,
-        FilterExpression: "category = :categoryName", // 정확한 일치 검색
-        ExpressionAttributeValues: {
-            ":categoryName": category, // 정확한 일치를 위한 값
-        },
-    };
+    const collection = await connectToCollection(collectionName);
 
     try {
-        const command = new ScanCommand(params); // ScanCommand로 변경
-        const result = await docClient.send(command);
+        const items = await collection.find({ category }).toArray(); // 정확한 일치 검색
 
         // 최종 응답 형식에 맞게 변환
-        const products = result.Items.map((item) => {
+        const products = items.map((item) => {
             const priceInfo = item.price_info.reduce((acc, price) => {
                 // price_type에 따라 적절한 키에 가격을 매핑
                 if (price.price_type === "현재") {
@@ -156,13 +140,10 @@ const searchCategoryInDB = async (category) => {
 
 // price_change가 감소인 상품중에, 가격 하락폭이 가장 큰 5개의 상품을 가져오는 함수
 const getTopDecliningProducts = async () => {
-    const params = {
-        TableName: PRODUCTS_TABLE,
-    };
+    const collection = await connectToCollection(collectionName);
 
     try {
-        const command = new ScanCommand(params);
-        const result = await docClient.send(command);
+        const items = await collection.find({}).toArray(); // 모든 상품 조회
 
         // 전월 년월 구하기 (YYYYMM 형식)
         const now = new Date();
@@ -171,7 +152,7 @@ const getTopDecliningProducts = async () => {
         const previousYearMonth = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
 
         // 가격 하락폭이 가장 큰 상품을 찾기
-        const productsWithDecline = result.Items.filter((item) => {
+        const productsWithDecline = items.filter((item) => {
             // price_trend 존재 여부와 감소 여부 확인
             const hasPriceTrend = item.price_trend && item.price_trend.price_change === "감소" && item.price_trend.price_decline !== undefined;
 
