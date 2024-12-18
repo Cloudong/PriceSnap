@@ -19,24 +19,17 @@ provider:
       statements:
         - Effect: Allow
           Action:
-            - dynamodb:Query
-            - dynamodb:Scan
-            - dynamodb:GetItem
-            - dynamodb:PutItem
-            - dynamodb:UpdateItem
-            - dynamodb:DeleteItem
-          Resource:
-            - Fn::GetAtt: [UsersTable, Arn]
-            - Fn::GetAtt: [ProductsTable, Arn]  # 새로운 테이블의 ARN 추가
-        - Effect: Allow
-          Action:
             - execute-api:Invoke
           Resource:
             - "*"
   environment:
     USERS_TABLE: ${param:tableName}
-    PRODUCTS_TABLE: ${param:productsTableName} # 새로운 환경 변수 추가
+    PRODUCTS_TABLE: ${param:productsTableName}
     SESSION_KEY: "session-key"
+    MONGODB_URI: "mongodb+srv://priceSnap:priceSnap0!@pricesnap.5ibjq.mongodb.net/?retryWrites=true&w=majority&appName=PriceSnap"
+    MONGODB_NAME:  "PriceSnapDB"
+    USERS_COLLECTION:  "users"
+    PRODUCTS_COLLECTION: "products"
      
 functions:
   api:
@@ -45,28 +38,3 @@ functions:
       - httpApi:  # API Gateway의 httpApi 이벤트 사용
           path: /api/{proxy+}  # 모든 /api/... 요청을 처리
           method: ANY
-
-resources:
-  Resources:
-    UsersTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: userId
-            AttributeType: S
-        KeySchema:
-          - AttributeName: userId
-            KeyType: HASH
-        BillingMode: PAY_PER_REQUEST
-        TableName: ${param:tableName}
-    ProductsTable:  # 새로운 DynamoDB 테이블 리소스 추가
-      Type: AWS::DynamoDB::Table
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: productId  # 새로운 속성 이름
-            AttributeType: S
-        KeySchema:
-          - AttributeName: productId  # 새로운 키 스키마
-            KeyType: HASH
-        BillingMode: PAY_PER_REQUEST
-        TableName: ${param:productsTableName}  # 새로운 테이블 이름 사용
