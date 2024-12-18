@@ -17,7 +17,8 @@ const client = new MongoClient(uri, {
 // MongoDB 클라이언트 연결 함수
 const connectToCollection = async (collectionName) => {
     try {
-        if (!client.topology.isConnected()) {
+        // 클라이언트가 연결되어 있지 않다면 연결 시도
+        if (!client.topology || !client.topology.isConnected()) {
             await client.connect();
             console.log("Connected to MongoDB");
         }
