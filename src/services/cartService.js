@@ -76,10 +76,8 @@ const getCart = async (userId) => {
 
         // 예산 가져오기
         const budget = user.budget ? user.budget.amount : null; // budget이 없을 경우 null 반환
-
         // 장바구니 아이템 조회
         const cartItems = user.cart && user.cart.cart_items ? user.cart.cart_items : null; // cart_items가 없을 경우 null 반환
-
         const items = [];
         let total_price = 0;
 
@@ -92,7 +90,7 @@ const getCart = async (userId) => {
                     const productName = product.product_name;
                     const price = product.price_trend.current_month_price; // 가격 가져오기
                     const quantity = item.quantity;
-                    const priority = item.priority
+                    const priority = item.priority;
 
                     // CartItemDTO 생성
                     const cartItemDTO = new CartItemDTO(item.product_id, productName, quantity, price, priority);

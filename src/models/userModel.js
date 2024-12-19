@@ -1,17 +1,12 @@
 const bcrypt = require("bcryptjs");
-const docClient = require("../config/dbConfig");
-const { GetCommand, PutCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
+const { connectToCollection } = require("../config/dbConfig"); // MongoDB 연결 함수
 
-const USERS_TABLE = process.env.USERS_TABLE;
+const collectionName = process.env.USERS_COLLECTION; // 사용할 컬렉션 이름
 
 const getUserById = async (userId) => {
-    const params = {
-        TableName: USERS_TABLE,
-        Key: { userId },
-    };
-    const command = new GetCommand(params);
-    const { Item } = await docClient.send(command);
-    return Item;
+    const collection = await connectToCollection(collectionName);
+    const user = await collection.findOne({ userId }, { projection: { _id: 0 } }); // 사용자 ID로 조회
+    return user;
 };
 
 const createUser = async (userId, name, user_password) => {
@@ -24,12 +19,8 @@ const createUser = async (userId, name, user_password) => {
             user_password: hashedPassword.toString(),
             created_at: new Date().toISOString(),
         };
-        const params = {
-            TableName: USERS_TABLE,
-            Item: user,
-        };
-        const command = new PutCommand(params);
-        await docClient.send(command);
+        const collection = await connectToCollection(collectionName);
+        await collection.insertOne(user); // MongoDB에 사용자 추가
         return user;
     } catch (error) {
         console.error("Error creating user:", error);
@@ -38,64 +29,29 @@ const createUser = async (userId, name, user_password) => {
 };
 
 const updateNameById = async (userId, newName) => {
-    const params = {
-        TableName: USERS_TABLE,
-        Key: {
-            userId: userId,
-        },
-        UpdateExpression: "SET #name = :newName",
-        ExpressionAttributeNames: {
-            "#name": "name",
-        },
-        ExpressionAttributeValues: {
-            ":newName": newName,
-        },
-        ReturnValues: "UPDATED_NEW",
-    };
-    const command = new UpdateCommand(params);
-    await docClient.send(command);
+    const collection = await connectToCollection(collectionName);
+    await collection.updateOne(
+        { userId: userId }, // 조건
+        { $set: { name: newName } } // 업데이트 내용
+    ); 
 };
 
 // 사용자의 cart를 업데이트
 const updateCartById = async (user) => {
-    const params = {
-        TableName: USERS_TABLE,
-        Key: {
-            userId: user.userId, // user 객체에서 userId를 가져옵니다.
-        },
-        UpdateExpression: "SET #cart = :cart",
-        ExpressionAttributeNames: {
-            "#cart": "cart", // 예약어 처리
-        },
-        ExpressionAttributeValues: {
-            ":cart": user.cart, // 업데이트할 cart 정보
-        },
-        ReturnValues: "UPDATED_NEW",
-    };
-
-    const command = new UpdateCommand(params);
-    await docClient.send(command);
+    const collection = await connectToCollection(collectionName);
+    await collection.updateOne(
+        { userId: user.userId }, // 조건
+        { $set: { cart: user.cart } } // 업데이트 내용
+    ); 
 };
 
 // 사용자의 budget을 업데이트
 const updateBudgetById = async (user) => {
-    const params = {
-        TableName: USERS_TABLE,
-        Key: {
-            userId: user.userId, // user 객체에서 userId를 가져옵니다.
-        },
-        UpdateExpression: "SET #budget = :budget",
-        ExpressionAttributeNames: {
-            "#budget": "budget", // 예약어 처리
-        },
-        ExpressionAttributeValues: {
-            ":budget": user.budget, // 업데이트할 budget 정보
-        },
-        ReturnValues: "UPDATED_NEW",
-    };
-
-    const command = new UpdateCommand(params);
-    await docClient.send(command);
+    const collection = await connectToCollection(collectionName);
+    await collection.updateOne(
+        { userId: user.userId }, // 조건
+        { $set: { budget: user.budget } } // 업데이트 내용
+    );
 };
 
 module.exports = {

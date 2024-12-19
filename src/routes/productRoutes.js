@@ -3,12 +3,6 @@ const productHandler = require("../handlers/productHandler");
 
 const router = express.Router();
 
-// 상품 조회 라우트 - 사용X (테스트 위함)
-//router.get("/info/:productId", productHandler.getProduct);
-
-// 상품 생성 라우트 - 사용X (테스트 위함)
-//router.post("/", productHandler.createProduct);
-
 // 상품 검색 메인페이지 API 라우트
 router.get("/search", productHandler.searchMainHandler);
 

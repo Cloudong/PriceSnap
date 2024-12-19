@@ -1,9 +1,8 @@
 const axios = require("axios");
-const docClient = require("../config/dbConfig");
-const { PutCommand } = require("@aws-sdk/lib-dynamodb");
+const { connectToCollection } = require("../config/dbConfig"); 
 const categoryRanges = require("../categories.js");
 
-const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE;
+const collectionName = process.env.PRODUCTS_COLLECTION; // 사용할 컬렉션 이름
 
 const apiStartUrl = process.env.API_START_URL;
 const apiKey = process.env.API_KEY;
@@ -80,18 +79,18 @@ async function fetchData(itemCode, offset = 0) {
 }
 
 async function saveOrUpdateDynamoDB(item) {
+    const collection = await connectToCollection(collectionName);
     console.log("저장할 아이템:", item); // 데이터 확인용 로그
-    const params = {
-        TableName: PRODUCTS_TABLE,
-        Item: item,
-    };
-
-    const command = new PutCommand(params);
+    
     try {
-        await docClient.send(command);
-        console.log(`DynamoDB에 데이터 저장 성공: ${item.product_name}`);
+        await collection.updateOne(
+            { productId: item.productId }, // productId로 고유하게 업데이트
+            { $set: item },
+            { upsert: true } // 없으면 추가, 있으면 업데이트
+        );
+        console.log(`MongoDB에 데이터 저장 성공: ${item.product_name}`);
     } catch (error) {
-        console.error("DynamoDB에 데이터 저장 실패:", error);
+        console.error("MongoDB에 데이터 저장 실패:", error);
     }
 }
 
